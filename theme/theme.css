@@ -351,16 +351,18 @@ a.tag, .markdown-source-view.mod-cm6 .cm-hashtag {
   padding: 0;
   margin-block: 1.6em;
 }
-/* Title bar in the default colour of the callout type (note blue, warning orange …) */
+/* Title bar in the default colour of the callout type (note blue, warning orange …).
+   Obsidian now stores --callout-color as a hex value, so it is used directly, darkened a little
+   so white text stays readable on light colours like cyan or yellow. */
 .callout-title {
-  background: rgb(var(--callout-color));
+  background: color-mix(in srgb, var(--callout-color) 68%, #000000);
   color: #ffffff;
   padding: 0.25em 0.7em;
   width: fit-content;
   font-size: 0.95em;
 }
-.callout-title .callout-icon,
-.callout-title .callout-title-inner { color: #ffffff; }
+.callout .callout-title .callout-icon,
+.callout .callout-title .callout-title-inner { color: #ffffff; }
 .callout-content {
   padding: 0.75em 1.1em 0.85em;
 }
