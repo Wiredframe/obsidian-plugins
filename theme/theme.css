@@ -345,7 +345,8 @@ a.tag, .markdown-source-view.mod-cm6 .cm-hashtag {
 }
 
 /* Callout as a margin note: light field, a strong rule on the left, the title as a small bold
-   label in neutral grey. Only the rule is coloured: the accent for every type, red for warnings. */
+   label in neutral grey. The icon keeps the default colour of its callout type, the rule takes the
+   accent for every type and red for warnings. */
 .callout {
   --fa-callout: var(--fa-farbe);
   background: var(--fa-feld);
@@ -367,7 +368,8 @@ a.tag, .markdown-source-view.mod-cm6 .cm-hashtag {
   font-size: 0.9em;
   font-weight: 700;
 }
-.callout .callout-title :is(.callout-icon, .callout-icon .svg-icon, .callout-fold) { color: var(--fa-kennzahl); }
+.callout .callout-title :is(.callout-icon, .callout-icon .svg-icon) { color: var(--callout-color); }
+.callout .callout-title .callout-fold { color: var(--fa-kennzahl); }
 .callout .callout-title .callout-icon svg { width: 1.15em; height: 1.15em; }
 .callout .callout-title .callout-title-inner { color: var(--fa-kennzahl); }
 .callout-content {
