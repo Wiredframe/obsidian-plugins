@@ -1,0 +1,159 @@
+/* Navigator: Ordner und Liste wie in Mail. Nur Theme-Variablen, damit jedes Theme greift. */
+
+.wfn-view.view-content {
+	padding: 0;
+	container-type: inline-size;
+	overflow: hidden;
+}
+
+.wfn {
+	display: flex;
+	height: 100%;
+}
+
+/* ---- Ordnerbaum ---- */
+
+.wfn-tree {
+	flex: 0 0 42%;
+	min-width: 150px;
+	max-width: 260px;
+	overflow-y: auto;
+	padding: 8px 6px;
+	border-right: 1px solid var(--background-modifier-border);
+	outline: none;
+}
+
+.wfn-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 28px;
+	padding: 2px 8px 2px calc(4px + var(--depth, 0) * 14px);
+	border-radius: 6px;
+	color: var(--text-muted);
+	font-size: 13px;
+	cursor: default;
+	user-select: none;
+}
+.wfn-row:hover { background: var(--background-modifier-hover); color: var(--text-normal); }
+.wfn-row.is-selected { background: var(--background-modifier-active-hover); color: var(--text-normal); }
+.wfn-tree:focus .wfn-row.is-selected { background: var(--interactive-accent); color: var(--text-on-accent); }
+.wfn-row.is-drop { box-shadow: inset 0 0 0 2px var(--interactive-accent); }
+
+.wfn-chevron { flex: none; width: 12px; display: flex; color: var(--text-faint); }
+.wfn-chevron svg { width: 12px; height: 12px; transition: transform 100ms ease-out; }
+.wfn-row.is-collapsed .wfn-chevron svg { transform: rotate(-90deg); }
+.wfn-icon { flex: none; display: flex; color: var(--interactive-accent); }
+.wfn-icon svg { width: 16px; height: 16px; }
+.wfn-tree:focus .wfn-row.is-selected :is(.wfn-icon, .wfn-chevron, .wfn-num) { color: inherit; }
+.wfn-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wfn-num { flex: none; font-size: 11px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+/* ---- Liste ---- */
+
+.wfn-pane {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.wfn-head {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	padding: 12px 10px 4px 14px;
+}
+.wfn-title { font-weight: 700; font-size: 15px; color: var(--text-normal); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wfn-count { flex: 1; font-size: 11px; color: var(--text-faint); white-space: nowrap; }
+.wfn-head .clickable-icon { align-self: center; }
+
+input.wfn-filter {
+	margin: 4px 10px 8px;
+	width: auto;
+	font-size: 13px;
+}
+
+.wfn-list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 0 6px 12px;
+	outline: none;
+}
+
+.wfn-item {
+	display: flex;
+	gap: 10px;
+	padding: 8px 10px;
+	border-radius: 8px;
+	cursor: default;
+	user-select: none;
+	position: relative;
+}
+/* Trennlinie zwischen den Einträgen, nicht neben der Markierung */
+.wfn-item + .wfn-item::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 10px;
+	right: 10px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+.wfn-item.is-selected::before, .wfn-item.is-selected + .wfn-item::before { display: none; }
+.wfn-item:hover { background: var(--background-modifier-hover); }
+.wfn-item.is-selected { background: var(--background-modifier-active-hover); }
+.wfn-list:focus .wfn-item.is-selected { background: var(--interactive-accent); color: var(--text-on-accent); }
+.wfn-list:focus .wfn-item.is-selected * { color: inherit !important; }
+
+.wfn-item-text { flex: 1; min-width: 0; }
+.wfn-item-top { display: flex; align-items: baseline; gap: 8px; }
+.wfn-item-title {
+	flex: 1;
+	min-width: 0;
+	font-weight: 600;
+	font-size: 13px;
+	color: var(--text-normal);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.wfn-item-date { flex: none; font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.wfn-item-preview {
+	margin-top: 2px;
+	font-size: 12px;
+	line-height: 1.4;
+	color: var(--text-muted);
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	min-height: 1.4em;
+}
+.wfn-item-path { margin-top: 2px; font-size: 11px; color: var(--text-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.wfn-thumb, .wfn-type {
+	flex: none;
+	width: 42px;
+	height: 42px;
+	border-radius: 6px;
+	align-self: center;
+}
+.wfn-thumb { object-fit: cover; background: var(--background-secondary); }
+.wfn-type { display: grid; place-items: center; background: var(--background-secondary); color: var(--text-muted); }
+.wfn-type svg { width: 20px; height: 20px; }
+
+.wfn-empty { padding: 24px 14px; text-align: center; font-size: 12px; color: var(--text-faint); }
+
+input.wfn-ask { width: 100%; }
+
+/* Schmale Seitenleiste: Baum über der Liste statt daneben */
+@container (max-width: 460px) {
+	.wfn { flex-direction: column; }
+	.wfn-tree {
+		flex: 0 0 auto;
+		max-height: 40%;
+		max-width: none;
+		border-right: none;
+		border-bottom: 1px solid var(--background-modifier-border);
+	}
+}

@@ -1,0 +1,10 @@
+{
+	"id": "open-in-chrome",
+	"name": "Open in Chrome",
+	"version": "1.1.0",
+	"minAppVersion": "1.0.0",
+	"description": "Cmd + Option + Klick oeffnet einen externen Link in Google Chrome statt im Standardbrowser.",
+	"author": "Ulf Schuster",
+	"authorUrl": "https://wiredframe.de",
+	"isDesktopOnly": true
+}

@@ -1,0 +1,173 @@
+/* Source Toolbar */
+
+.stb-bar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 2px;
+	padding: 4px 10px;
+	background: var(--background-primary);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.stb-bar.stb-hidden {
+	display: none;
+}
+
+/* The element selector is load-bearing: themes style plain `button` inside a
+   view, and a class on its own loses to them. Without it the bar renders as a
+   row of filled, shadowed default buttons instead of bare icons. */
+button.stb-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 26px;
+	padding: 0;
+	border: none;
+	border-radius: 5px;
+	background: transparent;
+	box-shadow: none;
+	color: var(--text-muted);
+	cursor: default;
+}
+
+button.stb-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+button.stb-btn.is-active {
+	background: var(--background-modifier-hover);
+	color: var(--text-accent);
+}
+
+button.stb-btn:focus-visible {
+	box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}
+
+button.stb-btn svg {
+	width: 16px;
+	height: 16px;
+}
+
+.stb-sep {
+	width: 1px;
+	height: 18px;
+	margin: 0 5px;
+	background: var(--background-modifier-border);
+}
+
+.stb-bar.stb-compact {
+	padding: 2px 8px;
+}
+
+.stb-bar.stb-compact button.stb-btn {
+	width: 24px;
+	height: 22px;
+}
+
+.stb-bar.stb-compact button.stb-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* One scrolling row rather than a bar that grows to three lines on a phone. */
+body.is-mobile .stb-bar {
+	flex-wrap: nowrap;
+	overflow-x: auto;
+}
+
+body.is-mobile button.stb-btn {
+	flex: 0 0 auto;
+	width: 34px;
+	height: 32px;
+}
+
+/* the table size picker */
+
+.stb-grid {
+	position: fixed;
+	z-index: var(--layer-menu);
+	padding: 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	background: var(--background-secondary);
+	box-shadow: var(--shadow-s);
+}
+
+.stb-grid-label {
+	margin-bottom: 6px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	text-align: center;
+}
+
+.stb-grid-board {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.stb-grid-row {
+	display: flex;
+	gap: 2px;
+}
+
+.stb-grid-cell {
+	width: 16px;
+	height: 16px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 2px;
+	background: var(--background-primary);
+}
+
+.stb-grid-cell.is-on {
+	border-color: var(--interactive-accent);
+	background: var(--interactive-accent);
+}
+
+/* the pickers */
+
+.stb-suggest-path {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+/* An in-progress task, "- [/]".
+
+   Obsidian counts every character other than a space as checked, so a half-done
+   task would otherwise be painted exactly like a finished one, and the marker
+   only reads correctly in themes that happen to know it. This draws it the way
+   Obsidian draws indeterminate in its own interface, an open box with a bar
+   instead of a tick, so it works in any theme including the default one. */
+
+.markdown-rendered li.task-list-item[data-task="/"] > input.task-list-item-checkbox,
+.markdown-rendered li.task-list-item[data-task="/"] > p > input.task-list-item-checkbox,
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="/"] input.task-list-item-checkbox {
+	background-color: transparent;
+	border-color: var(--checkbox-border-color);
+}
+
+.markdown-rendered li.task-list-item[data-task="/"] > input.task-list-item-checkbox:checked::after,
+.markdown-rendered li.task-list-item[data-task="/"] > p > input.task-list-item-checkbox:checked::after,
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="/"] input.task-list-item-checkbox:checked::after {
+	-webkit-mask-image: none;
+	mask-image: none;
+	background-color: var(--checkbox-color);
+	top: calc(var(--checkbox-size) / 2 - 2px);
+	inset-inline-start: 0;
+	left: 0;
+	right: 0;
+	width: calc(var(--checkbox-size) - 6px);
+	height: 2px;
+	margin: 0 auto;
+	border-radius: 2px;
+}
+
+/* Its text is neither struck through nor greyed out: it is not done yet. */
+.markdown-rendered li.task-list-item[data-task="/"],
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="/"] {
+	color: var(--text-normal);
+	text-decoration: none;
+}

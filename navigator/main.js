@@ -1,0 +1,466 @@
+// Navigator: Ordner und Dateiliste nebeneinander wie in Mail oder Notizen.
+// Bewusst klein: keine Einstellungsseite, kein Index, alles kommt aus dem Vault.
+const { Plugin, ItemView, Modal, Menu, Notice, TFile, TFolder, setIcon, getIcon, debounce } = require("obsidian");
+
+const VIEW = "wf-navigator";
+const IMAGES = new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp", "avif"]);
+const TYPE_ICONS = {
+	pdf: "file-text",
+	doc: "file-type", docx: "file-type", odt: "file-type", rtf: "file-type", pages: "file-type",
+	xls: "file-spreadsheet", xlsx: "file-spreadsheet", csv: "file-spreadsheet", numbers: "file-spreadsheet",
+	zip: "file-archive",
+	mp3: "file-audio", m4a: "file-audio", wav: "file-audio",
+	mp4: "file-video", mov: "file-video",
+	py: "file-code", js: "file-code", json: "file-code", xml: "file-code", xsd: "file-code", html: "file-code", xhtml: "file-code", css: "file-code",
+};
+
+module.exports = class NavigatorPlugin extends Plugin {
+	async onload() {
+		this.data = Object.assign({ folder: "/", expanded: [], icons: {} }, await this.loadData());
+		this.registerView(VIEW, (leaf) => new NavigatorView(leaf, this));
+		this.addCommand({ id: "open", name: "Navigator öffnen", callback: () => this.activate() });
+		this.addCommand({
+			id: "reveal",
+			name: "Aktuelle Datei im Navigator zeigen",
+			checkCallback: (checking) => {
+				const file = this.app.workspace.getActiveFile();
+				if (!file) return false;
+				if (!checking) this.activate().then((view) => view && view.reveal(file));
+				return true;
+			},
+		});
+		this.app.workspace.onLayoutReady(() => {
+			if (!this.app.workspace.getLeavesOfType(VIEW).length) this.activate();
+		});
+	}
+
+	async activate() {
+		const ws = this.app.workspace;
+		let leaf = ws.getLeavesOfType(VIEW)[0];
+		if (!leaf) {
+			leaf = ws.getLeftLeaf(false);
+			await leaf.setViewState({ type: VIEW, active: true });
+		}
+		ws.revealLeaf(leaf);
+		return leaf.view;
+	}
+
+	save() {
+		this.saveData(this.data);
+	}
+};
+
+class NavigatorView extends ItemView {
+	constructor(leaf, plugin) {
+		super(leaf);
+		this.plugin = plugin;
+		this.previews = new Map(); // Pfad -> { mtime, text }
+		this.filter = "";
+		this.cursor = null; // markierte Datei in der Liste
+		this.refresh = debounce(() => this.render(), 150, true);
+	}
+
+	getViewType() { return VIEW; }
+	getDisplayText() { return "Navigator"; }
+	getIcon() { return "folder-tree"; }
+
+	get data() { return this.plugin.data; }
+
+	async onOpen() {
+		this.contentEl.addClass("wfn-view");
+		const root = this.contentEl.createDiv("wfn");
+		this.treeEl = root.createDiv({ cls: "wfn-tree", attr: { tabindex: "0" } });
+		const pane = root.createDiv("wfn-pane");
+		const head = pane.createDiv("wfn-head");
+		this.headTitleEl = head.createDiv("wfn-title");
+		this.countEl = head.createDiv("wfn-count");
+		const add = head.createDiv({ cls: "clickable-icon", attr: { "aria-label": "Neue Notiz" } });
+		setIcon(add, "square-pen");
+		add.onclick = () => this.newNote(this.folder());
+		this.filterEl = pane.createEl("input", { cls: "wfn-filter", attr: { type: "search", placeholder: "Filtern" } });
+		this.filterEl.oninput = () => { this.filter = this.filterEl.value.trim().toLowerCase(); this.renderList(); };
+		this.filterEl.onkeydown = (e) => {
+			if (e.key === "ArrowDown") { e.preventDefault(); this.listEl.focus(); this.move(1); }
+			if (e.key === "Escape") { this.filterEl.value = ""; this.filter = ""; this.renderList(); this.listEl.focus(); }
+		};
+		this.listEl = pane.createDiv({ cls: "wfn-list", attr: { tabindex: "0" } });
+
+		this.treeEl.onkeydown = (e) => this.treeKey(e);
+		this.listEl.onkeydown = (e) => this.listKey(e);
+		this.treeEl.oncontextmenu = (e) => { if (e.target === this.treeEl) this.folderMenu(e, this.app.vault.getRoot()); };
+
+		const vault = this.app.vault;
+		this.registerEvent(vault.on("create", () => this.refresh()));
+		this.registerEvent(vault.on("delete", () => this.refresh()));
+		this.registerEvent(vault.on("rename", (file, old) => {
+			if (this.data.folder === old) { this.data.folder = file.path; this.plugin.save(); }
+			this.refresh();
+		}));
+		this.registerEvent(vault.on("modify", (file) => {
+			this.previews.delete(file.path);
+			if (file.parent && file.parent.path === this.data.folder) this.refresh();
+		}));
+		this.registerEvent(this.app.workspace.on("file-open", (file) => {
+			if (file) { this.cursor = file.path; this.markCursor(); }
+		}));
+		this.render();
+	}
+
+	folder() {
+		const f = this.app.vault.getAbstractFileByPath(this.data.folder);
+		return f instanceof TFolder ? f : this.app.vault.getRoot();
+	}
+
+	render() {
+		this.renderTree();
+		this.renderList();
+	}
+
+	// ---- Ordnerbaum ----
+
+	renderTree() {
+		const scroll = this.treeEl.scrollTop;
+		this.treeEl.empty();
+		this.visible = [];
+		const expanded = new Set(this.data.expanded);
+		const walk = (folder, depth) => {
+			const subs = folder.children.filter((c) => c instanceof TFolder).sort(byName);
+			this.folderRow(folder, depth, subs.length > 0, folder.isRoot() || expanded.has(folder.path));
+			if (folder.isRoot() || expanded.has(folder.path)) subs.forEach((s) => walk(s, depth + 1));
+		};
+		walk(this.app.vault.getRoot(), 0);
+		this.treeEl.scrollTop = scroll;
+	}
+
+	folderRow(folder, depth, hasChildren, open) {
+		this.visible.push(folder);
+		const row = this.treeEl.createDiv("wfn-row");
+		row.style.setProperty("--depth", String(Math.max(0, depth - 1)));
+		row.toggleClass("is-selected", folder.path === this.folder().path);
+		row.toggleClass("is-collapsed", !open);
+		const chevron = row.createDiv("wfn-chevron");
+		if (hasChildren && !folder.isRoot()) {
+			setIcon(chevron, "chevron-down");
+			chevron.onclick = (e) => { e.stopPropagation(); this.toggle(folder); };
+		}
+		setIcon(row.createDiv("wfn-icon"), folder.isRoot() ? "vault" : this.data.icons[folder.path] || "folder");
+		row.createDiv({ cls: "wfn-name", text: folder.isRoot() ? this.app.vault.getName() : folder.name });
+		const files = folder.children.filter((c) => c instanceof TFile).length;
+		if (files) row.createDiv({ cls: "wfn-num", text: String(files) });
+
+		row.onclick = () => this.select(folder);
+		row.ondblclick = () => hasChildren && this.toggle(folder);
+		row.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); this.folderMenu(e, folder); };
+
+		// Ziehen: Ordner verschieben, Dateien und Ordner hier ablegen
+		if (!folder.isRoot()) {
+			row.draggable = true;
+			row.ondragstart = (e) => {
+				const dm = this.app.dragManager;
+				dm.onDragStart(e, dm.dragFolder(e, folder));
+			};
+		}
+		row.ondragover = (e) => {
+			const d = this.app.dragManager.draggable;
+			if (!d || (d.type !== "file" && d.type !== "folder")) return;
+			e.preventDefault();
+			row.addClass("is-drop");
+		};
+		row.ondragleave = () => row.removeClass("is-drop");
+		row.ondrop = async (e) => {
+			row.removeClass("is-drop");
+			const d = this.app.dragManager.draggable;
+			const item = d && (d.file || (d.files && d.files[0]));
+			if (!item || item === folder || item.parent === folder) return;
+			if (item instanceof TFolder && folder.path.startsWith(item.path + "/")) return;
+			e.preventDefault();
+			await this.app.fileManager.renameFile(item, join(folder, item.name));
+		};
+	}
+
+	select(folder) {
+		this.data.folder = folder.path;
+		this.plugin.save();
+		this.filterEl.value = "";
+		this.filter = "";
+		this.render();
+	}
+
+	toggle(folder, open) {
+		const set = new Set(this.data.expanded);
+		const isOpen = set.has(folder.path);
+		if (open === undefined) open = !isOpen;
+		if (open === isOpen) return false;
+		open ? set.add(folder.path) : set.delete(folder.path);
+		this.data.expanded = [...set];
+		this.plugin.save();
+		this.renderTree();
+		return true;
+	}
+
+	treeKey(e) {
+		const current = this.folder();
+		const i = this.visible.indexOf(current);
+		const hasChildren = current.children.some((c) => c instanceof TFolder);
+		if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+			const next = this.visible[i + (e.key === "ArrowDown" ? 1 : -1)];
+			if (next) this.select(next);
+		} else if (e.key === "ArrowRight") {
+			if (current.isRoot() || !hasChildren || !this.toggle(current, true)) this.listEl.focus();
+		} else if (e.key === "ArrowLeft") {
+			if (!this.toggle(current, false) && current.parent) this.select(current.parent);
+		} else if (e.key === "Enter" || e.key === "Tab") {
+			this.listEl.focus();
+			if (!this.cursor) this.move(1);
+		} else return;
+		e.preventDefault();
+		const row = this.treeEl.querySelector(".is-selected");
+		if (row) row.scrollIntoView({ block: "nearest" });
+	}
+
+	// ---- Dateiliste ----
+
+	files() {
+		const folder = this.folder();
+		let files;
+		if (this.filter) {
+			files = [];
+			const walk = (f) => f.children.forEach((c) => (c instanceof TFile ? files.push(c) : walk(c)));
+			walk(folder);
+			files = files.filter((f) => f.name.toLowerCase().includes(this.filter));
+		} else {
+			files = folder.children.filter((c) => c instanceof TFile);
+		}
+		return files.sort((a, b) => b.stat.mtime - a.stat.mtime);
+	}
+
+	renderList() {
+		const folder = this.folder();
+		this.headTitleEl.setText(folder.isRoot() ? this.app.vault.getName() : folder.name);
+		const files = this.files();
+		this.countEl.setText(files.length === 1 ? "1 Datei" : `${files.length} Dateien`);
+		const scroll = this.listEl.scrollTop;
+		this.listEl.empty();
+		this.items = files;
+		for (const file of files) this.fileRow(file);
+		if (!files.length) this.listEl.createDiv({ cls: "wfn-empty", text: this.filter ? "Nichts gefunden" : "Keine Dateien" });
+		this.listEl.scrollTop = scroll;
+		this.markCursor();
+	}
+
+	fileRow(file) {
+		const row = this.listEl.createDiv({ cls: "wfn-item", attr: { "data-path": file.path } });
+		const text = row.createDiv("wfn-item-text");
+		const top = text.createDiv("wfn-item-top");
+		top.createDiv({ cls: "wfn-item-title", text: file.extension === "md" ? file.basename : file.name });
+		top.createDiv({ cls: "wfn-item-date", text: when(file.stat.mtime) });
+		const preview = text.createDiv("wfn-item-preview");
+		if (this.filter && file.parent !== this.folder()) text.createDiv({ cls: "wfn-item-path", text: file.parent.path });
+
+		const ext = file.extension.toLowerCase();
+		if (ext === "md") {
+			this.preview(file).then((t) => preview.setText(t));
+			const img = this.firstImage(file);
+			if (img) this.thumb(row, img);
+		} else {
+			preview.setText(`${ext.toUpperCase()} · ${size(file.stat.size)}`);
+			if (IMAGES.has(ext)) this.thumb(row, file);
+			else setIcon(row.createDiv("wfn-type"), TYPE_ICONS[ext] || "file");
+		}
+
+		row.onclick = (e) => { this.cursor = file.path; this.markCursor(); this.openItem(file, e.metaKey ? "tab" : false); };
+		row.oncontextmenu = (e) => { e.preventDefault(); this.fileMenu(e, file); };
+		row.draggable = true;
+		row.ondragstart = (e) => {
+			const dm = this.app.dragManager;
+			dm.onDragStart(e, dm.dragFile(e, file));
+		};
+	}
+
+	thumb(row, file) {
+		row.createEl("img", { cls: "wfn-thumb", attr: { src: this.app.vault.getResourcePath(file), loading: "lazy", alt: "" } });
+	}
+
+	firstImage(file) {
+		const cache = this.app.metadataCache.getFileCache(file);
+		for (const embed of (cache && cache.embeds) || []) {
+			const target = this.app.metadataCache.getFirstLinkpathDest(embed.link.split("#")[0], file.path);
+			if (target && IMAGES.has(target.extension.toLowerCase())) return target;
+		}
+		return null;
+	}
+
+	async preview(file) {
+		const hit = this.previews.get(file.path);
+		if (hit && hit.mtime === file.stat.mtime) return hit.text;
+		const raw = await this.app.vault.cachedRead(file);
+		const text = raw
+			.replace(/^---\n[\s\S]*?\n---\n?/, "")
+			.replace(/^\s*# .*\n?/, "") // H1 wiederholt meist nur den Titel
+			.replace(/!\[\[[^\]]*\]\]|!\[[^\]]*\]\([^)]*\)/g, "")
+			.replace(/\[\[([^\]|]*\|)?([^\]]*)\]\]/g, "$2")
+			.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+			.replace(/^\s*(#+|>|[-*+]( \[.\])?|\d+\.)\s*/gm, "")
+			.replace(/[*_`~=|]+/g, "")
+			.replace(/\s+/g, " ")
+			.trim()
+			.slice(0, 220);
+		this.previews.set(file.path, { mtime: file.stat.mtime, text });
+		return text;
+	}
+
+	markCursor() {
+		if (!this.listEl) return;
+		this.listEl.querySelectorAll(".wfn-item").forEach((el) => el.toggleClass("is-selected", el.dataset.path === this.cursor));
+	}
+
+	move(step) {
+		if (!this.items.length) return;
+		const i = this.items.findIndex((f) => f.path === this.cursor);
+		const next = this.items[Math.min(this.items.length - 1, Math.max(0, i < 0 ? 0 : i + step))];
+		this.cursor = next.path;
+		this.markCursor();
+		const row = this.listEl.querySelector(".wfn-item.is-selected");
+		if (row) row.scrollIntoView({ block: "nearest" });
+		// Wie in Mail: Pfeiltasten zeigen den Inhalt gleich an, der Fokus bleibt in der Liste
+		if (this.opensInside(next)) this.openItem(next, false, false);
+	}
+
+	listKey(e) {
+		const file = this.items.find((f) => f.path === this.cursor);
+		if (e.key === "ArrowDown") this.move(1);
+		else if (e.key === "ArrowUp") this.move(-1);
+		else if (e.key === "ArrowLeft" || (e.key === "Tab" && e.shiftKey)) this.treeEl.focus();
+		else if ((e.key === "Enter" || e.key === "ArrowRight" || e.key === "Tab") && file) this.openItem(file, e.metaKey ? "tab" : false);
+		else return;
+		e.preventDefault();
+	}
+
+	opensInside(file) {
+		return this.app.viewRegistry.isExtensionRegistered(file.extension);
+	}
+
+	async openItem(file, where, focus = true) {
+		if (!this.opensInside(file)) return this.app.openWithDefaultApp(file.path);
+		const leaf = this.app.workspace.getLeaf(where);
+		await leaf.openFile(file, { active: focus });
+	}
+
+	reveal(file) {
+		let f = file.parent;
+		const set = new Set(this.data.expanded);
+		while (f && !f.isRoot()) { set.add(f.path); f = f.parent; }
+		this.data.expanded = [...set];
+		this.cursor = file.path;
+		this.select(file.parent);
+	}
+
+	// ---- Kontextmenüs ----
+
+	fileMenu(e, file) {
+		const menu = new Menu();
+		menu.addItem((i) => i.setTitle("In neuem Tab öffnen").setIcon("file-plus").onClick(() => this.openItem(file, "tab")));
+		menu.addItem((i) => i.setTitle("Umbenennen …").setIcon("pencil").onClick(() => this.rename(file)));
+		menu.addItem((i) => i.setTitle("Im Finder zeigen").setIcon("folder-open").onClick(() => this.app.showInFolder(file.path)));
+		menu.addSeparator();
+		menu.addItem((i) => i.setTitle("Löschen").setIcon("trash-2").setWarning(true).onClick(() => this.app.fileManager.trashFile(file)));
+		this.app.workspace.trigger("file-menu", menu, file, "wf-navigator");
+		menu.showAtMouseEvent(e);
+	}
+
+	folderMenu(e, folder) {
+		const menu = new Menu();
+		menu.addItem((i) => i.setTitle("Neue Notiz …").setIcon("square-pen").onClick(() => this.newNote(folder)));
+		menu.addItem((i) => i.setTitle("Neuer Ordner …").setIcon("folder-plus").onClick(() => this.newFolder(folder)));
+		if (!folder.isRoot()) {
+			menu.addSeparator();
+			menu.addItem((i) => i.setTitle("Umbenennen …").setIcon("pencil").onClick(() => this.rename(folder)));
+			menu.addItem((i) => i.setTitle("Symbol …").setIcon("smile").onClick(() => this.chooseIcon(folder)));
+			menu.addItem((i) => i.setTitle("Im Finder zeigen").setIcon("folder-open").onClick(() => this.app.showInFolder(folder.path)));
+			menu.addSeparator();
+			menu.addItem((i) => i.setTitle("Löschen").setIcon("trash-2").setWarning(true).onClick(() => this.app.fileManager.trashFile(folder)));
+			this.app.workspace.trigger("file-menu", menu, folder, "wf-navigator");
+		}
+		menu.showAtMouseEvent(e);
+	}
+
+	newNote(folder) {
+		ask(this.app, "Neue Notiz", "", async (name) => {
+			const file = await this.app.vault.create(join(folder, name + ".md"), "");
+			this.cursor = file.path;
+			await this.openItem(file, false);
+		});
+	}
+
+	newFolder(parent) {
+		ask(this.app, "Neuer Ordner", "", async (name) => {
+			const folder = await this.app.vault.createFolder(join(parent, name));
+			this.toggle(parent, true);
+			this.select(folder);
+		});
+	}
+
+	rename(item) {
+		const isNote = item instanceof TFile;
+		const ext = isNote ? "." + item.extension : "";
+		const icon = this.data.icons[item.path];
+		ask(this.app, "Umbenennen", isNote ? item.basename : item.name, async (name) => {
+			const old = item.path;
+			await this.app.fileManager.renameFile(item, join(item.parent, name + ext));
+			if (icon) { delete this.data.icons[old]; this.data.icons[item.path] = icon; this.plugin.save(); }
+		});
+	}
+
+	chooseIcon(folder) {
+		ask(this.app, "Lucide-Symbol (leer = Standard)", this.data.icons[folder.path] || "", (name) => {
+			name = name.replace(/^lucide-/, "");
+			if (name && !getIcon(name)) return new Notice(`Kein Symbol „${name}“, Namen unter lucide.dev`);
+			if (name) this.data.icons[folder.path] = name;
+			else delete this.data.icons[folder.path];
+			this.plugin.save();
+			this.renderTree();
+		}, true);
+	}
+}
+
+// Kleiner Eingabedialog, Enter bestätigt
+function ask(app, title, value, onSubmit, allowEmpty = false) {
+	const modal = new Modal(app);
+	modal.titleEl.setText(title);
+	const input = modal.contentEl.createEl("input", { cls: "wfn-ask", attr: { type: "text", value } });
+	input.onkeydown = async (e) => {
+		if (e.key !== "Enter" || e.isComposing) return;
+		const v = input.value.trim().replace(/[\\/:]/g, "-");
+		if (!v && !allowEmpty) return;
+		modal.close();
+		try { await onSubmit(v); } catch (err) { new Notice(String(err.message || err)); }
+	};
+	modal.open();
+	input.select();
+}
+
+function join(folder, name) {
+	return folder.isRoot() ? name : `${folder.path}/${name}`;
+}
+
+function byName(a, b) {
+	return a.name.localeCompare(b.name, "de", { numeric: true });
+}
+
+function size(bytes) {
+	if (bytes < 1024) return `${bytes} B`;
+	if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+	return `${(bytes / 1024 / 1024).toLocaleString("de-DE", { maximumFractionDigits: 1 })} MB`;
+}
+
+// Datum wie in Mail: heute die Uhrzeit, dann Gestern, Wochentag, Datum
+function when(ms) {
+	const d = new Date(ms);
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	const days = Math.floor((today - new Date(d).setHours(0, 0, 0, 0)) / 86400000);
+	if (days <= 0) return d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+	if (days === 1) return "Gestern";
+	if (days < 7) return d.toLocaleDateString("de-DE", { weekday: "long" });
+	return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" });
+}

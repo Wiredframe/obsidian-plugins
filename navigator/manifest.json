@@ -1,0 +1,10 @@
+{
+	"id": "wf-navigator",
+	"name": "Navigator",
+	"version": "0.1.0",
+	"minAppVersion": "1.5.0",
+	"description": "Ordner und Dateiliste nebeneinander wie in Mail oder Notizen. Ersetzt den Datei-Explorer.",
+	"author": "Ulf Schuster",
+	"authorUrl": "https://wiredframe.de",
+	"isDesktopOnly": true
+}

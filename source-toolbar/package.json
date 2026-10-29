@@ -1,0 +1,19 @@
+{
+	"name": "source-toolbar",
+	"version": "0.1.0",
+	"description": "Obsidian plugin: a lightweight formatting toolbar for the editor",
+	"main": "main.js",
+	"type": "module",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"deploy": "npm run build && node deploy.mjs",
+		"test": "esbuild tests/tests.ts --bundle --format=cjs --outfile=tests.cjs --external:obsidian && node tests.cjs"
+	},
+	"devDependencies": {
+		"@types/node": "20.19.43",
+		"esbuild": "0.21.5",
+		"obsidian": "1.13.1",
+		"typescript": "5.9.3"
+	}
+}

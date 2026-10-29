@@ -1,0 +1,10 @@
+{
+	"id": "source-toolbar",
+	"name": "Source Toolbar",
+	"version": "0.1.0",
+	"minAppVersion": "1.5.0",
+	"description": "A small formatting toolbar above the editor: highlight, strikethrough, lists, tasks, links, images and tables. Nothing else.",
+	"author": "Ulf Schuster",
+	"authorUrl": "https://wiredframe.de",
+	"isDesktopOnly": false
+}

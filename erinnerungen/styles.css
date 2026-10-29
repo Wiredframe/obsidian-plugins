@@ -1,0 +1,9 @@
+.wfe-status { display: flex; align-items: center; gap: 2px; }
+.wfe-status-icon { display: flex; }
+.wfe-status-icon svg { width: 13px; height: 13px; }
+.wfe-status.is-overdue { color: var(--text-error); }
+
+.wfe-title { font-weight: 600; }
+.wfe-meta { margin-top: 2px; font-size: 0.85em; opacity: 0.75; }
+.wfe-buttons { display: flex; gap: 6px; margin-top: 8px; }
+.wfe-suggest-date { font-size: 0.85em; color: var(--text-muted); }
