@@ -207,8 +207,15 @@
   padding-top: 2em;
   padding-bottom: 0 !important;
   margin-bottom: 0.6em;
+  line-height: 1.35;
 }
+/* The bar is an inline block sitting on the bottom of the line box, so it ends exactly on the rule
+   whatever the font's ascent and descent are. An inline span's background would follow the font
+   metrics and overshoot or stop short of the rule. */
 .markdown-source-view.mod-cm6 .cm-header-2 {
+  display: inline-block;
+  vertical-align: bottom;
+  line-height: 1.35;
   background: var(--fa-rubrik);
   color: var(--fa-rubrik-text);
   padding: 0.15em 0.45em;
