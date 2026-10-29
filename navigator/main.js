@@ -3,6 +3,9 @@
 const { Plugin, ItemView, Modal, Menu, Notice, TFile, TFolder, setIcon, getIcon, debounce } = require("obsidian");
 
 const VIEW = "wf-navigator";
+// Pseudo folder at the top of the tree: the most recently modified files. Stored in data.folder like a real path.
+const RECENT = { path: ":recent", name: "Zuletzt bearbeitet" };
+const RECENT_MAX = 50;
 const IMAGES = new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp", "avif"]);
 const TYPE_ICONS = {
 	pdf: "file-text",
@@ -16,7 +19,7 @@ const TYPE_ICONS = {
 
 module.exports = class NavigatorPlugin extends Plugin {
 	async onload() {
-		this.data = Object.assign({ folder: "/", expanded: [], icons: {} }, await this.loadData());
+		this.data = Object.assign({ folder: "/", expanded: [], icons: {}, notesOnly: false }, await this.loadData());
 		this.registerView(VIEW, (leaf) => new NavigatorView(leaf, this));
 		this.addCommand({ id: "open", name: "Navigator öffnen", callback: () => this.activate() });
 		this.addCommand({
@@ -84,6 +87,8 @@ class NavigatorView extends ItemView {
 		const head = pane.createDiv("wfn-head");
 		this.headTitleEl = head.createDiv("wfn-title");
 		this.countEl = head.createDiv("wfn-count");
+		this.kindEl = head.createDiv("clickable-icon");
+		this.kindEl.onclick = () => { this.data.notesOnly = !this.data.notesOnly; this.plugin.save(); this.render(); };
 		const add = head.createDiv({ cls: "clickable-icon", attr: { "aria-label": "Neue Notiz" } });
 		setIcon(add, "square-pen");
 		add.onclick = () => this.newNote(this.folder());
@@ -109,13 +114,18 @@ class NavigatorView extends ItemView {
 		}));
 		this.registerEvent(vault.on("modify", (file) => {
 			this.previews.delete(file.path);
-			if (this.items && this.items.includes(file)) this.refresh();
+			if (this.isRecent() || (this.items && this.items.includes(file))) this.refresh();
 		}));
+		// Switching tabs follows the active file: jump to its folder unless it is already in the list
 		this.registerEvent(this.app.workspace.on("file-open", (file) => {
-			if (file) { this.cursor = file.path; this.markCursor(); }
+			if (!file) return;
+			if (this.items && this.items.includes(file)) { this.cursor = file.path; this.markCursor(); this.scrollToCursor(); }
+			else this.reveal(file);
 		}));
 		this.render();
 	}
+
+	isRecent() { return this.data.folder === RECENT.path; }
 
 	folder() {
 		const f = this.app.vault.getAbstractFileByPath(this.data.folder);
@@ -134,6 +144,7 @@ class NavigatorView extends ItemView {
 		this.treeEl.empty();
 		this.visible = [];
 		const expanded = new Set(this.data.expanded);
+		this.recentRow();
 		const walk = (folder, depth) => {
 			const subs = folder.children.filter((c) => c instanceof TFolder).sort(byName);
 			this.folderRow(folder, depth, subs.length > 0, folder.isRoot() || expanded.has(folder.path));
@@ -143,11 +154,21 @@ class NavigatorView extends ItemView {
 		this.treeEl.scrollTop = scroll;
 	}
 
+	recentRow() {
+		this.visible.push(RECENT);
+		const row = this.treeEl.createDiv("wfn-row wfn-row-recent");
+		row.toggleClass("is-selected", this.isRecent());
+		row.createDiv("wfn-chevron");
+		setIcon(row.createDiv("wfn-icon"), "clock");
+		row.createDiv({ cls: "wfn-name", text: RECENT.name });
+		row.onclick = () => this.select(RECENT);
+	}
+
 	folderRow(folder, depth, hasChildren, open) {
 		this.visible.push(folder);
 		const row = this.treeEl.createDiv("wfn-row");
 		row.style.setProperty("--depth", String(Math.max(0, depth - 1)));
-		row.toggleClass("is-selected", folder.path === this.folder().path);
+		row.toggleClass("is-selected", !this.isRecent() && folder.path === this.folder().path);
 		row.toggleClass("is-collapsed", !open);
 		const chevron = row.createDiv("wfn-chevron");
 		if (hasChildren && !folder.isRoot()) {
@@ -156,7 +177,7 @@ class NavigatorView extends ItemView {
 		}
 		setIcon(row.createDiv("wfn-icon"), folder.isRoot() ? "vault" : this.data.icons[folder.path] || "folder");
 		row.createDiv({ cls: "wfn-name", text: folder.isRoot() ? this.app.vault.getName() : folder.name });
-		const files = folder.children.filter((c) => c instanceof TFile).length;
+		const files = folder.children.filter((c) => c instanceof TFile && this.shows(c)).length;
 		if (files) row.createDiv({ cls: "wfn-num", text: String(files) });
 
 		row.onclick = () => this.select(folder);
@@ -210,16 +231,16 @@ class NavigatorView extends ItemView {
 	}
 
 	treeKey(e) {
-		const current = this.folder();
+		const current = this.isRecent() ? RECENT : this.folder();
 		const i = this.visible.indexOf(current);
-		const hasChildren = current.children.some((c) => c instanceof TFolder);
+		const hasChildren = current !== RECENT && current.children.some((c) => c instanceof TFolder);
 		if (e.key === "ArrowDown" || e.key === "ArrowUp") {
 			const next = this.visible[i + (e.key === "ArrowDown" ? 1 : -1)];
 			if (next) this.select(next);
 		} else if (e.key === "ArrowRight") {
-			if (current.isRoot() || !hasChildren || !this.toggle(current, true)) this.listEl.focus();
+			if (current === RECENT || current.isRoot() || !hasChildren || !this.toggle(current, true)) this.listEl.focus();
 		} else if (e.key === "ArrowLeft") {
-			if (!this.toggle(current, false) && current.parent) this.select(current.parent);
+			if (current !== RECENT && !this.toggle(current, false) && current.parent) this.select(current.parent);
 		} else if (e.key === "Enter" || e.key === "Tab") {
 			this.listEl.focus();
 			if (!this.cursor) this.move(1);
@@ -231,7 +252,18 @@ class NavigatorView extends ItemView {
 
 	// ---- File list ----
 
+	// The toggle in the head: only notes or all files. "Zuletzt bearbeitet" always lists notes only.
+	shows(file) {
+		return file.extension === "md" || !this.data.notesOnly;
+	}
+
 	files() {
+		if (this.isRecent()) {
+			return this.app.vault.getMarkdownFiles()
+				.filter((f) => f.name.toLowerCase().includes(this.filter))
+				.sort((a, b) => b.stat.mtime - a.stat.mtime)
+				.slice(0, RECENT_MAX);
+		}
 		const folder = this.folder();
 		let files;
 		if (this.filter) {
@@ -242,14 +274,18 @@ class NavigatorView extends ItemView {
 		} else {
 			files = folder.children.filter((c) => c instanceof TFile);
 		}
-		return files.sort((a, b) => b.stat.mtime - a.stat.mtime);
+		return files.filter((f) => this.shows(f)).sort((a, b) => b.stat.mtime - a.stat.mtime);
 	}
 
 	renderList() {
 		const folder = this.folder();
-		this.headTitleEl.setText(folder.isRoot() ? this.app.vault.getName() : folder.name);
+		this.headTitleEl.setText(this.isRecent() ? RECENT.name : folder.isRoot() ? this.app.vault.getName() : folder.name);
 		const files = this.files();
 		this.countEl.setText(files.length === 1 ? "1 Datei" : `${files.length} Dateien`);
+		this.kindEl.toggle(!this.isRecent());
+		this.kindEl.toggleClass("is-active", this.data.notesOnly);
+		setIcon(this.kindEl, this.data.notesOnly ? "file-text" : "files");
+		this.kindEl.setAttr("aria-label", this.data.notesOnly ? "Nur Notizen, klicken für alle Dateien" : "Alle Dateien, klicken für nur Notizen");
 		const scroll = this.listEl.scrollTop;
 		this.listEl.empty();
 		this.items = files;
@@ -266,7 +302,7 @@ class NavigatorView extends ItemView {
 		top.createDiv({ cls: "wfn-item-title", text: file.extension === "md" ? file.basename : file.name });
 		top.createDiv({ cls: "wfn-item-date", text: when(file.stat.mtime) });
 		const preview = text.createDiv("wfn-item-preview");
-		if (this.filter && file.parent !== this.folder()) text.createDiv({ cls: "wfn-item-path", text: file.parent.path });
+		if ((this.isRecent() || this.filter) && file.parent !== this.folder()) text.createDiv({ cls: "wfn-item-path", text: file.parent.path });
 
 		const ext = file.extension.toLowerCase();
 		if (ext === "md") {
@@ -333,14 +369,18 @@ class NavigatorView extends ItemView {
 		this.listEl.querySelectorAll(".wfn-item").forEach((el) => el.toggleClass("is-selected", el.dataset.path === this.cursor));
 	}
 
+	scrollToCursor() {
+		const row = this.listEl.querySelector(".wfn-item.is-selected");
+		if (row) row.scrollIntoView({ block: "nearest" });
+	}
+
 	move(step) {
 		if (!this.items.length) return;
 		const i = this.items.findIndex((f) => f.path === this.cursor);
 		const next = this.items[Math.min(this.items.length - 1, Math.max(0, i < 0 ? 0 : i + step))];
 		this.cursor = next.path;
 		this.markCursor();
-		const row = this.listEl.querySelector(".wfn-item.is-selected");
-		if (row) row.scrollIntoView({ block: "nearest" });
+		this.scrollToCursor();
 		// Like Mail: arrow keys show the content right away, focus stays in the list
 		if (this.opensInside(next)) this.peek(next);
 	}

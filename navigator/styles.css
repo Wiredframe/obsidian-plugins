@@ -46,6 +46,7 @@
 .wfn-icon { flex: none; display: flex; color: var(--interactive-accent); }
 .wfn-icon svg { width: 16px; height: 16px; }
 .wfn-tree:focus .wfn-row.is-selected :is(.wfn-icon, .wfn-chevron, .wfn-num) { color: inherit; }
+.wfn-row-recent { margin-bottom: 6px; }
 .wfn-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wfn-num { flex: none; font-size: 11px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
 
