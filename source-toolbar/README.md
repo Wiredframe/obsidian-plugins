@@ -22,12 +22,10 @@ buttons act on the word under the caret.
 The buttons for the thing the caret is sitting in light up, so a glance at the
 bar tells you where you are.
 
-## Tasks have a middle
+## Indeterminate tasks
 
-The task button walks one step per press: to do, in progress, done, and then
-back out to a plain bullet. In progress is written `- [/]`, which Tasks, Minimal
-and Things all read as half-done, and which Obsidian hands to CSS as
-`data-task="/"`.
+The task button cycles through to do, indeterminate (`- [/]`), done and back to
+a plain bullet. Obsidian exposes the state to CSS as `data-task="/"`.
 
 Obsidian counts every character other than a space as checked, so without help
 a half-done task is painted exactly like a finished one. This plugin paints it
