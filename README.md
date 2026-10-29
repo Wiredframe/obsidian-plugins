@@ -1,26 +1,27 @@
-# Obsidian-Plugins
+# Obsidian plugins and theme
 
-Eigene, bewusst minimalistische Plugins für den Vault `~/Vault/Wiredframe`. Ziel: keine fremden Community-Plugins, so wenige Core-Plugins wie möglich, jede Zeile nachvollziehbar.
+A handful of deliberately tiny Obsidian plugins and one theme, written to replace community plugins with code that fits on a few screens and can be read in one sitting. No settings tabs, no indexes, no network access, no build step for most of them. The user interface is in German.
 
-| Ordner | ID | Was es tut |
+| Folder | ID | What it does |
 |---|---|---|
-| `navigator` | `wf-navigator` | Ordner und Dateiliste nebeneinander wie in Mail oder Notizen, alle Dateitypen, Vorschau, Tastatur, Filter, Ordnersymbole. Ersetzt den Datei-Explorer (Core-Plugin aus). |
-| `erinnerungen` | `wf-erinnerungen` | `- [ ] Aufgabe (@31 July 2026 14:00)` meldet sich zur Fälligkeit, Statusleiste zeigt Überfälliges, nach `(@` Datumsvorschläge. Format des alten Reminder-Plugins. |
-| `source-toolbar` | `source-toolbar` | Formatierungsleiste über dem Editor (TypeScript, `npm run build`). |
-| `open-in-chrome` | `open-in-chrome` | Cmd + Option + Klick öffnet externe Links in Chrome. |
+| `navigator` | `wf-navigator` | Folders and a file list side by side, like Apple Mail or Notes. Shows every file type (PDFs, images, Office files) with a preview line or thumbnail, keyboard navigation, a filter field, folder icons via the context menu. Meant to replace the core file explorer. |
+| `erinnerungen` | `wf-erinnerungen` | Reminders: `- [ ] Task (@31 July 2026 14:00)` notifies you when due, the status bar shows what is overdue, typing `(@` suggests dates. Uses the format of the Reminder community plugin. |
+| `source-toolbar` | `source-toolbar` | A formatting toolbar above the editor (TypeScript, see its own README). |
+| `open-in-chrome` | `open-in-chrome` | Cmd + Option + click opens an external link in Google Chrome instead of the default browser. |
+| `theme` | Wiredframe | Notes styled like a German tax form: section bars for H2, entry fields, table grids, tick boxes. Colours and fonts come from the default theme and your settings, so it follows your accent colour and light or dark mode. |
 
-Navigator, Erinnerungen und Open in Chrome sind reines JavaScript ohne Build-Schritt.
+Navigator, Erinnerungen and Open in Chrome are plain JavaScript. Source Toolbar needs `npm install && npm run build` once.
 
-## Installieren
+## Install
 
 ```sh
-./install.sh              # alle
-./install.sh navigator    # eines
-VAULT=~/anderer-vault ./install.sh
+./install.sh                 # everything
+./install.sh navigator theme # just these
+VAULT=~/path/to/vault ./install.sh
 ```
 
-Das Skript kopiert `main.js`, `manifest.json` und `styles.css` nach `.obsidian/plugins/<id>/` und lädt das Plugin per `obsidian`-CLI neu, falls Obsidian läuft. Einstellungen (`data.json`) bleiben im Vault.
+The script copies `main.js`, `manifest.json` and `styles.css` to `.obsidian/plugins/<id>/` and the theme to `.obsidian/themes/<name>/`. If Obsidian is running and the `obsidian` CLI is available, plugins are reloaded right away. A plugin installed for the first time has to be enabled once under Settings › Community plugins. Settings (`data.json`) stay in the vault.
 
-## Abgelöst
+## License
 
-Am 2026-10-29 ersetzt bzw. entfernt: Iconic, Reminder, Homepage, Default New Tab Page, Smart Composer, Mononote, TimeStamper, Opener. Die alten Ordner liegen unter `~/Archiv/Obsidian-Umbau-2026-10-29/`.
+MIT

@@ -1,5 +1,5 @@
-// Navigator: Ordner und Dateiliste nebeneinander wie in Mail oder Notizen.
-// Bewusst klein: keine Einstellungsseite, kein Index, alles kommt aus dem Vault.
+// Navigator: folders and a file list side by side, like Apple Mail or Notes.
+// Deliberately small: no settings tab, no index, everything comes straight from the vault.
 const { Plugin, ItemView, Modal, Menu, Notice, TFile, TFolder, setIcon, getIcon, debounce } = require("obsidian");
 
 const VIEW = "wf-navigator";
@@ -32,7 +32,7 @@ module.exports = class NavigatorPlugin extends Plugin {
 		this.app.workspace.onLayoutReady(() => {
 			if (!this.app.workspace.getLeavesOfType(VIEW).length) this.activate();
 		});
-		// Gespeicherte Pfade (gewählter Ordner, aufgeklappte Ordner, Symbole) beim Umbenennen und Verschieben mitnehmen
+		// Carry stored paths (selected folder, expanded folders, icons) along when folders are renamed or moved
 		this.registerEvent(this.app.vault.on("rename", (file, old) => {
 			if (!(file instanceof TFolder)) return;
 			const move = (p) => (p === old ? file.path : p.startsWith(old + "/") ? file.path + p.slice(old.length) : p);
@@ -64,9 +64,9 @@ class NavigatorView extends ItemView {
 	constructor(leaf, plugin) {
 		super(leaf);
 		this.plugin = plugin;
-		this.previews = new Map(); // Pfad -> { mtime, text }
+		this.previews = new Map(); // path -> { mtime, text }
 		this.filter = "";
-		this.cursor = null; // markierte Datei in der Liste
+		this.cursor = null; // selected file in the list
 		this.refresh = debounce(() => this.render(), 150, true);
 	}
 
@@ -127,7 +127,7 @@ class NavigatorView extends ItemView {
 		this.renderList();
 	}
 
-	// ---- Ordnerbaum ----
+	// ---- Folder tree ----
 
 	renderTree() {
 		const scroll = this.treeEl.scrollTop;
@@ -163,7 +163,7 @@ class NavigatorView extends ItemView {
 		row.ondblclick = () => hasChildren && this.toggle(folder);
 		row.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); this.folderMenu(e, folder); };
 
-		// Ziehen: Ordner verschieben, Dateien und Ordner hier ablegen
+		// Dragging: move folders, drop files and folders here
 		if (!folder.isRoot()) {
 			row.draggable = true;
 			row.ondragstart = (e) => {
@@ -229,7 +229,7 @@ class NavigatorView extends ItemView {
 		if (row) row.scrollIntoView({ block: "nearest" });
 	}
 
-	// ---- Dateiliste ----
+	// ---- File list ----
 
 	files() {
 		const folder = this.folder();
@@ -279,7 +279,7 @@ class NavigatorView extends ItemView {
 			else setIcon(row.createDiv("wfn-type"), TYPE_ICONS[ext] || "file");
 		}
 
-		// Klick zeigt die Datei, der Fokus bleibt in der Liste (schnell weiterblättern); Doppelklick springt in den Editor
+		// A click shows the file and keeps focus in the list (to flip through quickly); double-click jumps into the editor
 		row.onclick = (e) => {
 			this.cursor = file.path;
 			this.markCursor();
@@ -315,7 +315,7 @@ class NavigatorView extends ItemView {
 		const raw = await this.app.vault.cachedRead(file);
 		const text = raw
 			.replace(/^---\n[\s\S]*?\n---\n?/, "")
-			.replace(/^\s*# .*\n?/, "") // H1 wiederholt meist nur den Titel
+			.replace(/^\s*# .*\n?/, "") // the H1 usually just repeats the title
 			.replace(/!\[\[[^\]]*\]\]|!\[[^\]]*\]\([^)]*\)/g, "")
 			.replace(/\[\[([^\]|]*\|)?([^\]]*)\]\]/g, "$2")
 			.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
@@ -341,7 +341,7 @@ class NavigatorView extends ItemView {
 		this.markCursor();
 		const row = this.listEl.querySelector(".wfn-item.is-selected");
 		if (row) row.scrollIntoView({ block: "nearest" });
-		// Wie in Mail: Pfeiltasten zeigen den Inhalt gleich an, der Fokus bleibt in der Liste
+		// Like Mail: arrow keys show the content right away, focus stays in the list
 		if (this.opensInside(next)) this.peek(next);
 	}
 
@@ -359,7 +359,7 @@ class NavigatorView extends ItemView {
 		return this.app.viewRegistry.isExtensionRegistered(file.extension);
 	}
 
-	// Datei anzeigen, aber in der Liste bleiben. Der Editor holt sich den Fokus teils erst nach dem Öffnen zurück.
+	// Show a file but stay in the list. The editor sometimes grabs focus only after opening.
 	async peek(file) {
 		await this.openItem(file, false, false);
 		if (this.cursor === file.path) this.listEl.focus();
@@ -383,7 +383,7 @@ class NavigatorView extends ItemView {
 		}
 	}
 
-	// ---- Kontextmenüs ----
+	// ---- Context menus ----
 
 	fileMenu(e, file) {
 		const menu = new Menu();
@@ -449,7 +449,7 @@ class NavigatorView extends ItemView {
 	}
 }
 
-// Kleiner Eingabedialog, Enter bestätigt
+// Small input dialog, Enter confirms
 function ask(app, title, value, onSubmit, allowEmpty = false) {
 	const modal = new Modal(app);
 	modal.titleEl.setText(title);
@@ -479,7 +479,7 @@ function size(bytes) {
 	return `${(bytes / 1024 / 1024).toLocaleString("de-DE", { maximumFractionDigits: 1 })} MB`;
 }
 
-// Datum wie in Mail: heute die Uhrzeit, dann Gestern, Wochentag, Datum
+// Dates like Mail: time for today, then "Gestern", weekday, date
 function when(ms) {
 	const d = new Date(ms);
 	const today = new Date();

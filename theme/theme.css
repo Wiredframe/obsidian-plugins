@@ -1,0 +1,472 @@
+/* Wiredframe: notes styled like a German tax form (section bars, entry fields, table grids, tick boxes).
+   Only the note itself is styled. All colours come from the default theme: greys from --color-base-*,
+   the accent from the settings (Appearance › Accent color), so light and dark mode follow by themselves.
+   Fonts also come from the settings. Everything around the note (sidebars, tabs, dialogs) stays default.
+
+   Extras:
+   - cssclasses: kaestchen   turns inline code into box fields like "T T M M J J J J"
+   - cssclasses: vordruck    numbers every paragraph in the margin in reading view (line 1, 2, 3 …) */
+
+/* ── Colours: references to the default theme's palette only ─────────────
+   Deliberately --color-base rather than --background-… and --text-…: those are redefined below for
+   the note from these values and would otherwise reference themselves. */
+
+.theme-light, .theme-dark {
+  --fa-feld: var(--color-base-25);          /* entry field */
+  --fa-linie: var(--color-base-40);         /* rules */
+  --fa-kennzahl: color-mix(in srgb, var(--color-base-100) 50%, var(--color-base-70));  /* field numbers, table headers */
+  --fa-beschriftung: var(--color-base-70);  /* small labels */
+  --fa-schwarz: var(--color-base-100);      /* text */
+  --fa-farbe: var(--color-accent);          /* accent colour from the settings */
+  --fa-rubrik: var(--fa-farbe);
+  --fa-rubrik-text: var(--text-on-accent);
+  --fa-auswahl: color-mix(in srgb, var(--color-accent) 25%, var(--color-base-00));  /* text selection */
+  --fa-hover: color-mix(in srgb, var(--color-accent) 8%, var(--color-base-00));     /* hover and focus */
+  --fa-blass: var(--color-base-35);
+  --fa-link: var(--fa-farbe);
+  --fa-akzent: var(--color-orange);         /* strings and values in code */
+  --fa-warnung: var(--color-red);
+}
+
+/* ── Notes only: variables for the sheet ────────────────────────────── */
+
+.workspace-leaf-content[data-type="markdown"] .view-content,
+.markdown-embed,
+.hover-popover {
+  --fa-grund: var(--background-primary);   /* sheet in the default background colour */
+  --background-primary-alt: var(--fa-feld);
+  --background-modifier-border: var(--fa-linie);
+  --background-modifier-hover: var(--fa-hover);
+  --background-modifier-form-field: var(--fa-feld);
+
+  /* Text */
+  --text-normal: var(--fa-schwarz);
+  --text-muted: var(--fa-beschriftung);
+  --text-faint: var(--fa-linie);
+  --text-accent: var(--fa-link);
+  --text-accent-hover: var(--fa-schwarz);
+  --text-selection: color-mix(in srgb, var(--fa-auswahl) 80%, transparent);
+  --text-highlight-bg: var(--fa-feld);
+
+  /* Form: square corners */
+  --radius-s: 0;
+  --radius-m: 0;
+  --checkbox-radius: 0;
+  --tag-radius: 0;
+  --code-radius: 0;
+  --callout-radius: 0;
+  --embed-border-radius: 0;
+  --image-radius: 0;
+  --list-bullet-radius: 0;            /* square bullets */
+  --metadata-property-radius: 0;
+  --metadata-property-radius-hover: 0;
+  --metadata-property-radius-focus: 0;
+  --table-selection-border-radius: 0;
+
+  /* Spacing like a printed form */
+  --line-height-normal: 1.65;
+  --p-spacing: 1.3rem;
+  --list-spacing: 0.35em;
+  --file-margins: 40px 56px;
+  --checkbox-size: 17px;
+  --table-cell-padding: 0.5em 0.9em;
+
+  /* Headings */
+  --h1-size: 1.75em;
+  --h2-size: 1.0em;
+  --h3-size: 1.05em;
+  --h4-size: 0.8em;
+  --h5-size: 0.75em;
+  --h6-size: 0.7em;
+  --h1-weight: 700;
+  --h2-weight: 700;
+  --h3-weight: 700;
+  --h4-weight: 400;
+  --h5-weight: 400;
+  --h6-weight: 400;
+  --h1-line-height: 1.15;
+  --h1-color: var(--fa-schwarz);
+  --h2-color: var(--fa-rubrik-text);
+  --h3-color: var(--fa-schwarz);
+  --h4-color: var(--fa-beschriftung);
+  --h5-color: var(--fa-beschriftung);
+  --h6-color: var(--fa-beschriftung);
+  --inline-title-size: 1.75em;
+  --inline-title-weight: 700;
+  --inline-title-color: var(--fa-schwarz);
+
+  /* Content */
+  --link-color: var(--fa-link);
+  --link-color-hover: var(--fa-schwarz);
+  --link-external-color: var(--fa-link);
+  --link-external-color-hover: var(--fa-schwarz);
+  --link-unresolved-color: var(--fa-beschriftung);
+  --link-unresolved-opacity: 0.8;
+  --link-unresolved-decoration-color: var(--fa-linie);
+  --tag-color: var(--fa-kennzahl);
+  --tag-color-hover: var(--fa-schwarz);
+  --tag-background: var(--fa-feld);
+  --tag-background-hover: var(--fa-hover);
+  --tag-border-color: var(--fa-linie);
+  --tag-border-color-hover: var(--fa-farbe);
+  --tag-border-width: 2px;
+  --tag-weight: 700;
+  --tag-padding-x: 0.4em;
+  --tag-padding-y: 0.05em;
+  --code-background: var(--fa-feld);
+  --code-normal: var(--fa-schwarz);
+  --code-size: 0.9em;
+  /* Restrained syntax colours: greys, the accent for functions, a warm tone for strings */
+  --code-comment: var(--fa-beschriftung);
+  --code-function: var(--fa-link);
+  --code-keyword: var(--fa-schwarz);
+  --code-important: var(--fa-akzent);
+  --code-operator: var(--fa-beschriftung);
+  --code-property: var(--fa-link);
+  --code-punctuation: var(--fa-beschriftung);
+  --code-string: var(--fa-akzent);
+  --code-tag: var(--fa-link);
+  --code-value: var(--fa-akzent);
+  --blockquote-border-color: var(--fa-linie);
+  --blockquote-border-thickness: 3px;
+  --blockquote-font-style: normal;
+  --blockquote-color: var(--fa-schwarz);
+  --hr-color: var(--fa-linie);
+  --hr-thickness: 2px;
+  --list-marker-color: var(--fa-farbe);
+  --list-marker-color-hover: var(--fa-schwarz);
+  --checkbox-color: var(--fa-rubrik);
+  --checkbox-color-hover: var(--fa-rubrik);
+  --checkbox-border-color: var(--fa-linie);
+  --checkbox-border-color-hover: var(--fa-farbe);
+  --checklist-done-color: var(--fa-beschriftung);
+  --table-border-color: var(--fa-linie);
+  --table-border-width: 1px;
+  --table-header-background: transparent;
+  --table-header-color: var(--fa-kennzahl);
+  --table-header-weight: 700;
+  --table-header-size: 0.8em;
+  --table-background: var(--fa-feld);
+  --table-row-background-hover: var(--fa-hover);
+  --table-row-alt-background: var(--fa-feld);
+  --table-column-alt-background: transparent;
+  --metadata-label-text-color: var(--fa-beschriftung);
+  --metadata-label-font-size: 0.75em;
+  --metadata-input-background: var(--fa-feld);
+  --metadata-input-background-hover: var(--fa-hover);
+  --metadata-input-background-active: var(--fa-hover);
+  --metadata-property-background-hover: var(--fa-hover);
+  --metadata-property-background-active: var(--fa-hover);
+  --background-modifier-active-hover: var(--fa-hover);
+  --background-modifier-border-hover: var(--fa-farbe);
+  --background-modifier-border-focus: var(--fa-farbe);
+  --table-selection: color-mix(in srgb, var(--fa-auswahl) 60%, transparent);
+  --table-selection-border-color: var(--fa-farbe);
+  --table-drag-handle-background-active: var(--fa-farbe);
+  --table-drag-handle-color-active: var(--fa-rubrik-text);
+  --table-add-button-background: var(--fa-hover);
+  --metadata-border-color: var(--fa-linie);
+
+  --callout-border-width: 2px;
+  --callout-border-opacity: 1;
+  --callout-title-weight: 700;
+
+  color: var(--fa-schwarz);
+}
+
+/* ── Headings ──────────────────────────────────────────────────────── */
+
+.inline-title,
+.markdown-rendered h1,
+.markdown-source-view.mod-cm6 .HyperMD-header-1 {
+  letter-spacing: -0.01em;
+}
+
+/* H2 as a section bar: coloured bar with light text on a rule across the full width */
+.markdown-rendered h2 {
+  display: flex;
+  align-items: stretch;
+  background: var(--fa-rubrik);
+  color: var(--fa-rubrik-text);
+  border-bottom: 2px solid var(--fa-rubrik);
+  padding: 0.15em 0 0.15em 0.45em;
+  margin-top: 2.6em;
+  margin-bottom: 1.1em;
+  line-height: 1.35;
+}
+.markdown-rendered h2::after {
+  content: "";
+  flex: 1;
+  margin-left: 0.45em;
+  margin-top: -0.15em;
+  margin-bottom: -0.15em;
+  background: var(--background-primary);
+}
+.markdown-source-view.mod-cm6 .HyperMD-header-2 {
+  border-bottom: 2px solid var(--fa-rubrik);
+  padding-top: 2em;
+  padding-bottom: 0 !important;
+  margin-bottom: 0.6em;
+}
+.markdown-source-view.mod-cm6 .cm-header-2 {
+  background: var(--fa-rubrik);
+  color: var(--fa-rubrik-text);
+  padding: 0.15em 0.45em;
+}
+.markdown-source-view.mod-cm6 .HyperMD-header-2 .cm-formatting-header {
+  background: transparent;
+  color: var(--fa-beschriftung);
+  padding: 0;
+}
+
+.markdown-rendered h3 { margin-top: 1.9em; margin-bottom: 0.7em; }
+.markdown-source-view.mod-cm6 .HyperMD-header-3 { padding-top: 1.1em; }
+.markdown-rendered :is(h4, h5, h6) { margin-top: 1.4em; margin-bottom: 0.2em; }
+.markdown-source-view.mod-cm6 :is(.HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) { padding-top: 0.8em; }
+
+.markdown-rendered :is(h4, h5, h6),
+.markdown-source-view.mod-cm6 :is(.cm-header-4, .cm-header-5, .cm-header-6) {
+  letter-spacing: 0.01em;
+}
+
+/* ── Entry fields ──────────────────────────────────────────────────── */
+
+.markdown-rendered code:not(pre code),
+.markdown-source-view.mod-cm6 .cm-inline-code:not(.cm-formatting) {
+  background: var(--fa-feld);
+  box-shadow: inset 0 0 0 1px var(--fa-blass);
+  padding: 0.2em 0.45em;
+  margin: 0 0.1em;
+}
+.markdown-rendered mark,
+.markdown-source-view.mod-cm6 .cm-highlight {
+  background: var(--fa-feld);
+  color: var(--fa-schwarz);
+  box-shadow: inset 0 -2px 0 var(--fa-farbe);
+  padding: 0.15em 0.4em;
+  margin: 0 0.1em;
+}
+
+.markdown-rendered pre,
+.markdown-source-view.mod-cm6 .HyperMD-codeblock {
+  background: var(--fa-feld);
+}
+.markdown-rendered pre {
+  border: 1px solid var(--fa-linie);
+  padding: 1em 1.2em;
+}
+
+.markdown-rendered .tag,
+.markdown-source-view .cm-hashtag {
+  border-style: solid;
+}
+/* In the editor a tag is split into "#" and name: no inner edge, otherwise you get two boxes */
+.markdown-source-view .cm-hashtag-begin {
+  border-right-style: none;
+  padding-right: 0;
+}
+.markdown-source-view .cm-hashtag-end {
+  border-left-style: none;
+  padding-left: 0;
+}
+a.tag, .markdown-source-view.mod-cm6 .cm-hashtag {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Checkboxes as tick boxes */
+.markdown-rendered input[type="checkbox"],
+.markdown-source-view input[type="checkbox"] {
+  border-width: 1.5px;
+}
+.markdown-rendered input[type="checkbox"]:not(:checked),
+.markdown-source-view input[type="checkbox"]:not(:checked) {
+  background-color: var(--fa-feld);
+}
+/* Checked: filled with the accent colour and a white tick */
+.markdown-rendered input[type="checkbox"]:checked,
+.markdown-source-view input[type="checkbox"]:checked {
+  background-color: var(--fa-rubrik);
+  border-color: var(--fa-rubrik);
+}
+.markdown-rendered input[type="checkbox"]:checked::after,
+.markdown-source-view input[type="checkbox"]:checked::after {
+  background-color: var(--fa-rubrik-text);
+}
+.markdown-rendered .task-list-item-checkbox,
+.markdown-source-view.mod-cm6 .task-list-item-checkbox {
+  margin-inline-end: 0.7em;
+}
+.markdown-rendered li.task-list-item + li.task-list-item {
+  margin-top: 0.35em;
+}
+.markdown-source-view.mod-cm6 .HyperMD-task-line {
+  padding-block: 0.15em;
+}
+
+/* Tables: light fields in a grid, small bold column headers */
+.markdown-rendered table {
+  border-collapse: separate;
+  border-spacing: 4px;
+  background: transparent;
+  margin-block: 1.2em;
+}
+.markdown-rendered :is(td, th),
+.markdown-source-view.mod-cm6 .cm-table-widget :is(td, th) {
+  border: none;
+}
+.markdown-preview-view :is(td, th),
+.markdown-source-view.mod-cm6 .cm-table-widget .table-cell-wrapper {
+  padding: var(--table-cell-padding);
+}
+.markdown-rendered td,
+.markdown-source-view.mod-cm6 .cm-table-widget td {
+  background: var(--fa-feld);
+  box-shadow: inset 0 -1px 0 var(--fa-linie);
+}
+.markdown-rendered th,
+.markdown-source-view.mod-cm6 .cm-table-widget th {
+  text-transform: none;
+  background: transparent;
+  border-bottom: 2px solid var(--fa-linie);
+}
+
+.markdown-rendered blockquote {
+  background: transparent;
+  font-size: 0.92em;
+  padding: 0.35em 0 0.35em 1.2em;
+  margin-block: 1.4em;
+}
+.markdown-source-view.mod-cm6 .HyperMD-quote {
+  font-size: 0.92em;
+  padding-block: 0.2em;
+}
+.markdown-source-view.mod-cm6 .HyperMD-quote::before {
+  margin-inline-end: 0.9em;
+}
+
+/* Callout as a framed section, its title as a section bar */
+.callout {
+  background: var(--fa-feld);
+  border: 2px solid var(--fa-linie);
+  padding: 0;
+  margin-block: 1.6em;
+}
+/* Title bar in the default colour of the callout type (note blue, warning orange …) */
+.callout-title {
+  background: rgb(var(--callout-color));
+  color: #ffffff;
+  padding: 0.25em 0.7em;
+  width: fit-content;
+  font-size: 0.95em;
+}
+.callout-title .callout-icon,
+.callout-title .callout-title-inner { color: #ffffff; }
+.callout-content {
+  padding: 0.75em 1.1em 0.85em;
+}
+.callout-content > :first-child { margin-top: 0; }
+.callout-content > :last-child { margin-bottom: 0; }
+
+.markdown-rendered sup.footnote-ref a,
+.markdown-rendered ol > li::marker {
+  color: var(--fa-farbe);
+  font-weight: 700;
+}
+
+/* ── Properties (frontmatter): small label, value in a light field ── */
+
+.markdown-source-view .metadata-container,
+.markdown-preview-view .metadata-container {
+  border-top: 2px solid var(--fa-linie);
+  border-bottom: 2px solid var(--fa-linie);
+  padding: 0.6em 0;
+  margin-bottom: 2em;
+}
+.metadata-container .metadata-property {
+  padding: 4px 0;
+}
+.metadata-container .metadata-property-value {
+  background: var(--fa-feld);
+  box-shadow: inset 0 -1px 0 var(--fa-blass);
+}
+
+/* ── Line numbers in the editor like a form margin ── */
+
+.markdown-source-view.mod-cm6 .cm-gutters {
+  background: transparent;
+}
+.markdown-source-view.mod-cm6 .cm-lineNumbers .cm-gutterElement {
+  color: var(--fa-beschriftung);
+  font-family: var(--font-interface);
+  font-size: 0.6em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.45em;
+}
+.markdown-source-view.mod-cm6 .cm-lineNumbers .cm-active {
+  color: var(--fa-schwarz);
+}
+
+/* ── Reading view with line numbers: cssclasses: vordruck ── */
+
+.markdown-preview-view.vordruck .markdown-preview-sizer {
+  counter-reset: zeile;
+}
+.markdown-preview-view.vordruck .markdown-preview-sizer > div:not(.mod-frontmatter, .mod-header):is(:has(> p), :has(> ul), :has(> ol), :has(> table), :has(> blockquote), :has(> pre)) {
+  position: relative;
+  counter-increment: zeile;
+}
+.markdown-preview-view.vordruck .markdown-preview-sizer > div:not(.mod-frontmatter, .mod-header):is(:has(> p), :has(> ul), :has(> ol), :has(> table), :has(> blockquote), :has(> pre))::before {
+  content: counter(zeile);
+  position: absolute;
+  left: -2.6em;
+  width: 2em;
+  top: 0.15em;
+  text-align: right;
+  font-size: 0.6em;
+  font-weight: 700;
+  line-height: 2.6;
+  color: var(--fa-beschriftung);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Boxes: cssclasses: kaestchen ── */
+
+.kaestchen code:not(pre code),
+.kaestchen.markdown-source-view.mod-cm6 .cm-inline-code:not(.cm-formatting) {
+  --ls: 0.75ch;
+  --zelle: calc(1ch + var(--ls));
+  font-family: var(--font-monospace);
+  letter-spacing: var(--ls);
+  padding: 0.2em 0 0.2em calc(var(--ls) / 2);
+  margin-right: calc(var(--ls) / -2);
+  margin-left: 0.1em;
+  clip-path: inset(0 calc(var(--ls) / 2) 0 0);
+  box-shadow: none;
+  background:
+    repeating-linear-gradient(90deg,
+      var(--fa-feld) 0 calc(var(--zelle) - 2px),
+      var(--fa-grund) calc(var(--zelle) - 2px) var(--zelle));
+}
+
+/* ── Hover and focus: the same hint of accent colour everywhere ── */
+
+.markdown-rendered td:hover,
+.markdown-source-view.mod-cm6 .cm-table-widget td:hover,
+.markdown-source-view.mod-cm6 .cm-table-widget td:focus-within {
+  background: var(--fa-hover);
+}
+.markdown-source-view.mod-cm6 .cm-table-widget td:focus-within {
+  box-shadow: inset 0 -2px 0 var(--fa-farbe);
+}
+.markdown-rendered input[type="checkbox"]:not(:checked):hover,
+.markdown-source-view input[type="checkbox"]:not(:checked):hover {
+  background-color: var(--fa-hover);
+}
+.metadata-container .metadata-property-value:hover,
+.metadata-container .metadata-property-value:focus-within {
+  background: var(--fa-hover);
+}
+.metadata-container .metadata-property-value:focus-within {
+  box-shadow: inset 0 -2px 0 var(--fa-farbe);
+}

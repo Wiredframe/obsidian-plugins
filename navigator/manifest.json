@@ -3,7 +3,7 @@
 	"name": "Navigator",
 	"version": "0.1.0",
 	"minAppVersion": "1.5.0",
-	"description": "Ordner und Dateiliste nebeneinander wie in Mail oder Notizen. Ersetzt den Datei-Explorer.",
+	"description": "Folders and a file list side by side, like Apple Mail or Notes. Replaces the file explorer.",
 	"author": "Ulf Schuster",
 	"authorUrl": "https://wiredframe.de",
 	"isDesktopOnly": true

@@ -3,7 +3,7 @@
 	"name": "Erinnerungen",
 	"version": "0.1.0",
 	"minAppVersion": "1.5.0",
-	"description": "Offene Aufgaben mit (@31 July 2026) oder (@31 July 2026 14:00) melden sich zur Fälligkeit. Statusleiste zeigt Überfälliges.",
+	"description": "Open tasks with (@31 July 2026) or (@31 July 2026 14:00) notify you when due. The status bar shows what is overdue.",
 	"author": "Ulf Schuster",
 	"authorUrl": "https://wiredframe.de",
 	"isDesktopOnly": false

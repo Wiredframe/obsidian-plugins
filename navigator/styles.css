@@ -1,4 +1,4 @@
-/* Navigator: Ordner und Liste wie in Mail. Nur Theme-Variablen, damit jedes Theme greift. */
+/* Navigator: folders and list like Mail. Theme variables only, so any theme applies. */
 
 .wfn-view.view-content {
 	padding: 0;
@@ -11,7 +11,7 @@
 	height: 100%;
 }
 
-/* ---- Ordnerbaum ---- */
+/* ---- Folder tree ---- */
 
 .wfn-tree {
 	flex: 0 0 42%;
@@ -49,7 +49,7 @@
 .wfn-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wfn-num { flex: none; font-size: 11px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
 
-/* ---- Liste ---- */
+/* ---- List ---- */
 
 .wfn-pane {
 	flex: 1;
@@ -90,7 +90,7 @@ input.wfn-filter {
 	user-select: none;
 	position: relative;
 }
-/* Trennlinie zwischen den Einträgen, nicht neben der Markierung */
+/* Separator between items, but not next to the selection */
 .wfn-item + .wfn-item::before {
 	content: "";
 	position: absolute;
@@ -101,7 +101,7 @@ input.wfn-filter {
 }
 .wfn-item.is-selected::before, .wfn-item.is-selected + .wfn-item::before { display: none; }
 .wfn-item:hover { background: var(--background-modifier-hover); }
-/* Die gewählte Datei bleibt kräftig markiert, auch wenn der Fokus im Editor liegt */
+/* The selected file stays strongly highlighted, even while the editor has focus */
 .wfn-item.is-selected, .wfn-item.is-selected:hover { background: var(--interactive-accent); color: var(--text-on-accent); }
 .wfn-item.is-selected * { color: inherit !important; }
 .wfn-item.is-selected .wfn-item-preview, .wfn-item.is-selected .wfn-item-date { opacity: 0.85; }
@@ -147,7 +147,7 @@ input.wfn-filter {
 
 input.wfn-ask { width: 100%; }
 
-/* Schmale Seitenleiste: Baum über der Liste statt daneben */
+/* Narrow sidebar: tree above the list instead of beside it */
 @container (max-width: 460px) {
 	.wfn { flex-direction: column; }
 	.wfn-tree {

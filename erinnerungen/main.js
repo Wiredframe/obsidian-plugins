@@ -1,5 +1,5 @@
-// Erinnerungen: offene Aufgaben mit (@31 July 2026) oder (@31 July 2026 14:00) melden sich zur Fälligkeit.
-// Das Format ist das des alten Reminder-Plugins, damit vorhandene Notizen weiter gelten.
+// Erinnerungen: open tasks with (@31 July 2026) or (@31 July 2026 14:00) notify you when they are due.
+// The format is the one of the Reminder community plugin, so existing notes keep working.
 const { Plugin, Notice, Menu, EditorSuggest, TFile, moment, setIcon } = require("obsidian");
 
 const TASK = /^\s*[-*+] \[ \] (.*?)\s*\(@([^)]+)\)/;
@@ -12,7 +12,7 @@ module.exports = class ErinnerungenPlugin extends Plugin {
 		const saved = await this.loadData();
 		this.firstRun = !saved;
 		this.notified = new Set((saved && saved.notified) || []);
-		this.byFile = new Map(); // Pfad -> [{ key, path, line, title, due }]
+		this.byFile = new Map(); // path -> [{ key, path, line, title, due }]
 
 		this.status = this.addStatusBarItem();
 		this.status.addClass("mod-clickable", "wfe-status");
@@ -22,7 +22,7 @@ module.exports = class ErinnerungenPlugin extends Plugin {
 
 		this.app.workspace.onLayoutReady(async () => {
 			for (const file of this.app.vault.getMarkdownFiles()) await this.scan(file);
-			// Beim ersten Start alles schon Fällige still übernehmen, sonst kommen alte Erinnerungen auf einmal
+			// On the very first run, silently accept everything already due, otherwise old reminders fire all at once
 			if (this.firstRun) { this.all().filter((r) => r.due <= Date.now()).forEach((r) => this.notified.add(r.key)); this.persist(); }
 			this.check();
 			this.registerInterval(window.setInterval(() => this.check(), CHECK_MS));
@@ -34,8 +34,8 @@ module.exports = class ErinnerungenPlugin extends Plugin {
 				this.updateStatus();
 			}));
 			this.registerEvent(vault.on("rename", (f, old) => {
-				// Schon gemeldete Erinnerungen gelten auch unter dem neuen Pfad als gemeldet
-				// Bei Ordnern gilt das für alle Dateien darin
+				// Reminders already shown stay shown under the new path,
+				// for a folder that applies to every file inside
 				for (const key of [...this.notified]) {
 					if (under(key.split("|")[0], old)) { this.notified.delete(key); this.notified.add(f.path + key.slice(old.length)); }
 				}
@@ -82,7 +82,7 @@ module.exports = class ErinnerungenPlugin extends Plugin {
 	}
 
 	persist() {
-		// Nur Schlüssel behalten, die es noch gibt
+		// Only keep keys that still exist
 		const live = new Set(this.all().map((r) => r.key));
 		this.saveData({ notified: [...this.notified].filter((k) => live.has(k)) });
 	}
@@ -136,7 +136,7 @@ module.exports = class ErinnerungenPlugin extends Plugin {
 		if (!(file instanceof TFile)) return;
 		await this.app.vault.process(file, (text) => {
 			const lines = text.split("\n");
-			// Die Zeile kann sich verschoben haben: über Titel und Datum wiederfinden
+			// The line may have moved: find it again by title and date
 			const i = lines.findIndex((l) => { const m = TASK.exec(l); return m && m[1] === r.title && m[2] === r.raw; });
 			if (i >= 0) lines[i] = lines[i].replace("[ ]", "[x]");
 			return lines.join("\n");
@@ -144,7 +144,7 @@ module.exports = class ErinnerungenPlugin extends Plugin {
 	}
 };
 
-// Nach „(@“ Vorschläge für das Datum, eingesetzt im bestehenden Format
+// After "(@" suggest dates, inserted in the existing format
 class DateSuggest extends EditorSuggest {
 	constructor(plugin) {
 		super(plugin.app);
@@ -169,7 +169,7 @@ class DateSuggest extends EditorSuggest {
 			{ label: "Nächste Woche", date: at(now.clone().add(1, "week").isoWeekday(1)) },
 		];
 		const q = ctx.query.trim();
-		// Eigenes Datum: 31.12. oder 31.12.2026, optional mit Uhrzeit
+		// Typed date: 31.12. or 31.12.2026, optionally with a time
 		const typed = moment(q, ["D.M.YYYY H:mm", "D.M. H:mm", "D.M.YYYY", "D.M."], true);
 		if (q && typed.isValid()) {
 			if (!/\d{4}/.test(q) && typed.isBefore(now, "day")) typed.add(1, "year");
@@ -186,7 +186,7 @@ class DateSuggest extends EditorSuggest {
 
 	selectSuggestion(s) {
 		const { editor, start, end } = this.context;
-		// Autopair setzt oft schon die schließende Klammer hinter den Cursor
+		// Auto-pairing often already put the closing parenthesis after the cursor
 		const after = editor.getLine(end.line).charAt(end.ch) === ")" ? { line: end.line, ch: end.ch + 1 } : end;
 		editor.replaceRange(`(@${format(s)})`, start, after);
 		editor.setCursor({ line: start.line, ch: start.ch + format(s).length + 3 });

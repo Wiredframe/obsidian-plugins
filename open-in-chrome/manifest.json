@@ -3,7 +3,7 @@
 	"name": "Open in Chrome",
 	"version": "1.1.0",
 	"minAppVersion": "1.0.0",
-	"description": "Cmd + Option + Klick oeffnet einen externen Link in Google Chrome statt im Standardbrowser.",
+	"description": "Cmd + Option + click opens an external link in Google Chrome instead of the default browser.",
 	"author": "Ulf Schuster",
 	"authorUrl": "https://wiredframe.de",
 	"isDesktopOnly": true

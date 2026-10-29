@@ -2,21 +2,21 @@ const { Plugin, Notice } = require("obsidian");
 const { spawn } = require("child_process");
 
 const BROWSER = "Google Chrome";
-const MAX_AGE = 1500; // ms zwischen Klick und dem Oeffnen-Versuch
+const MAX_AGE = 1500; // ms allowed between the click and the open attempt
 
 module.exports = class OpenInChromePlugin extends Plugin {
 	onload() {
 		this.armedAt = 0;
 
-		// Modifier beim Klick nur merken, nicht eingreifen. Obsidian oeffnet den
-		// Link erst danach ueber window.open bzw. den Electron-Hauptprozess.
+		// Only remember the modifiers on click, don't interfere. Obsidian opens the
+		// link afterwards via window.open or the Electron main process.
 		const remember = (evt) => {
 			if (evt.metaKey && evt.altKey) this.armedAt = evt.timeStamp;
 		};
 		document.addEventListener("mousedown", remember, true);
 		this.register(() => document.removeEventListener("mousedown", remember, true));
 
-		// Netz 1: window.open abfangen, bevor der Hauptprozess ueberhaupt gefragt wird.
+		// Net 1: catch window.open before the main process is even asked.
 		const originalOpen = window.open;
 		window.open = (url, ...rest) => {
 			if (this.armed() && typeof url === "string" && /^https?:\/\//i.test(url)) {
@@ -28,8 +28,8 @@ module.exports = class OpenInChromePlugin extends Plugin {
 		};
 		this.register(() => { window.open = originalOpen; });
 
-		// Netz 2: Obsidian fragt den Renderer per open-url um Erlaubnis, bevor es
-		// shell.openExternal aufruft. preventDefault stoppt den Standardbrowser.
+		// Net 2: Obsidian asks the renderer for permission via open-url before it
+		// calls shell.openExternal. preventDefault stops the default browser.
 		const veto = (evt) => {
 			const url = evt.detail && evt.detail.url;
 			if (!this.armed() || !/^https?:\/\//i.test(url || "")) return;
@@ -47,7 +47,7 @@ module.exports = class OpenInChromePlugin extends Plugin {
 
 	open(url) {
 		const child = spawn("open", ["-a", BROWSER, url], { detached: true, stdio: "ignore" });
-		child.on("error", () => new Notice(`${BROWSER} laesst sich nicht oeffnen.`));
+		child.on("error", () => new Notice(`${BROWSER} lässt sich nicht öffnen.`));
 		child.unref();
 	}
 };
