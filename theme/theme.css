@@ -191,7 +191,7 @@
   border-bottom: 2px solid var(--fa-rubrik);
   padding: 0.15em 0 0.15em 0.45em;
   margin-top: 2.6em;
-  margin-bottom: 1.1em;
+  margin-bottom: 1.5em;
   line-height: 1.35;
 }
 .markdown-rendered h2::after {
@@ -206,8 +206,13 @@
   border-bottom: 2px solid var(--fa-rubrik);
   padding-top: 2em;
   padding-bottom: 0 !important;
-  margin-bottom: 0.6em;
   line-height: 1.35;
+}
+/* Room below the bar goes on the next line: the rule sits at the bottom of the heading line, and
+   CodeMirror miscounts line heights when lines carry margins */
+/* Same shape as Obsidian's own rule for the line after a heading (empty lines excluded), one class stronger */
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-header-2 + .cm-line:not(.HyperMD-header):not(:has(> br:only-child)) {
+  padding-top: 0.9em;
 }
 /* The bar is an inline block sitting on the bottom of the line box, so it ends exactly on the rule
    whatever the font's ascent and descent are. An inline span's background would follow the font
@@ -226,10 +231,12 @@
   padding: 0;
 }
 
-.markdown-rendered h3 { margin-top: 1.9em; margin-bottom: 0.7em; }
-.markdown-source-view.mod-cm6 .HyperMD-header-3 { padding-top: 1.1em; }
-.markdown-rendered :is(h4, h5, h6) { margin-top: 1.4em; margin-bottom: 0.2em; }
-.markdown-source-view.mod-cm6 :is(.HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) { padding-top: 0.8em; }
+.markdown-rendered h1 { margin-bottom: 0.8em; }
+.markdown-source-view.mod-cm6 .HyperMD-header-1 { padding-bottom: 0.4em; }
+.markdown-rendered h3 { margin-top: 1.9em; margin-bottom: 1em; }
+.markdown-source-view.mod-cm6 .HyperMD-header-3 { padding-top: 1.1em; padding-bottom: 0.5em; }
+.markdown-rendered :is(h4, h5, h6) { margin-top: 1.4em; margin-bottom: 0.6em; }
+.markdown-source-view.mod-cm6 :is(.HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) { padding-top: 0.8em; padding-bottom: 0.3em; }
 
 .markdown-rendered :is(h4, h5, h6),
 .markdown-source-view.mod-cm6 :is(.cm-header-4, .cm-header-5, .cm-header-6) {
