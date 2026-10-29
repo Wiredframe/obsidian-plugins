@@ -323,6 +323,15 @@ class NavigatorView extends ItemView {
 			if (e.metaKey) this.openItem(file, "tab");
 			else if (this.opensInside(file)) this.peek(file);
 		};
+		// Middle click opens in a new tab like Cmd-click; mousedown would otherwise start autoscroll
+		row.onmousedown = (e) => { if (e.button === 1) e.preventDefault(); };
+		row.onauxclick = (e) => {
+			if (e.button !== 1) return;
+			e.preventDefault();
+			this.cursor = file.path;
+			this.markCursor();
+			this.openItem(file, "tab");
+		};
 		row.ondblclick = () => this.openItem(file, false);
 		row.oncontextmenu = (e) => { e.preventDefault(); this.fileMenu(e, file); };
 		row.draggable = true;
