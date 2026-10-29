@@ -344,27 +344,37 @@ a.tag, .markdown-source-view.mod-cm6 .cm-hashtag {
   margin-inline-end: 0.9em;
 }
 
-/* Callout as a framed section, its title as a section bar */
+/* Callout as a margin note: light field, a strong rule on the left, the title as a small
+   capitalised label. One colour for every type (the accent), red only for warnings. */
 .callout {
+  --fa-callout: var(--fa-farbe);
   background: var(--fa-feld);
-  border: 2px solid var(--fa-linie);
-  padding: 0;
+  border: none;
+  border-left: 4px solid var(--fa-callout);
+  padding: 0.8em 1.1em 0.9em;
   margin-block: 1.6em;
+  mix-blend-mode: normal;
 }
-/* Title bar in the default colour of the callout type (note blue, warning orange …).
-   Obsidian now stores --callout-color as a hex value, so it is used directly, darkened a little
-   so white text stays readable on light colours like cyan or yellow. */
-.callout-title {
-  background: color-mix(in srgb, var(--callout-color) 68%, #000000);
-  color: #ffffff;
-  padding: 0.25em 0.7em;
-  width: fit-content;
-  font-size: 0.95em;
+.callout:is([data-callout="warning"], [data-callout="caution"], [data-callout="attention"],
+  [data-callout="danger"], [data-callout="error"], [data-callout="bug"],
+  [data-callout="failure"], [data-callout="fail"], [data-callout="missing"]) {
+  --fa-callout: var(--fa-warnung);
 }
-.callout .callout-title .callout-icon,
-.callout .callout-title .callout-title-inner { color: #ffffff; }
+.callout .callout-title {
+  background: none;
+  padding: 0;
+  gap: 0.45em;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.callout .callout-title :is(.callout-icon, .callout-icon .svg-icon, .callout-fold) { color: var(--fa-callout); }
+.callout .callout-title .callout-icon svg { width: 1.15em; height: 1.15em; }
+.callout .callout-title .callout-title-inner { color: var(--fa-kennzahl); }
 .callout-content {
-  padding: 0.75em 1.1em 0.85em;
+  padding: 0;
+  margin-top: 0.5em;
 }
 .callout-content > :first-child { margin-top: 0; }
 .callout-content > :last-child { margin-bottom: 0; }
