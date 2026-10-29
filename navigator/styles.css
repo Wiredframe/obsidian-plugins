@@ -101,9 +101,10 @@ input.wfn-filter {
 }
 .wfn-item.is-selected::before, .wfn-item.is-selected + .wfn-item::before { display: none; }
 .wfn-item:hover { background: var(--background-modifier-hover); }
-.wfn-item.is-selected { background: var(--background-modifier-active-hover); }
-.wfn-list:focus .wfn-item.is-selected { background: var(--interactive-accent); color: var(--text-on-accent); }
-.wfn-list:focus .wfn-item.is-selected * { color: inherit !important; }
+/* Die gewählte Datei bleibt kräftig markiert, auch wenn der Fokus im Editor liegt */
+.wfn-item.is-selected, .wfn-item.is-selected:hover { background: var(--interactive-accent); color: var(--text-on-accent); }
+.wfn-item.is-selected * { color: inherit !important; }
+.wfn-item.is-selected .wfn-item-preview, .wfn-item.is-selected .wfn-item-date { opacity: 0.85; }
 
 .wfn-item-text { flex: 1; min-width: 0; }
 .wfn-item-top { display: flex; align-items: baseline; gap: 8px; }

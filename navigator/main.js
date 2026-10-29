@@ -32,6 +32,15 @@ module.exports = class NavigatorPlugin extends Plugin {
 		this.app.workspace.onLayoutReady(() => {
 			if (!this.app.workspace.getLeavesOfType(VIEW).length) this.activate();
 		});
+		// Gespeicherte Pfade (gewählter Ordner, aufgeklappte Ordner, Symbole) beim Umbenennen und Verschieben mitnehmen
+		this.registerEvent(this.app.vault.on("rename", (file, old) => {
+			if (!(file instanceof TFolder)) return;
+			const move = (p) => (p === old ? file.path : p.startsWith(old + "/") ? file.path + p.slice(old.length) : p);
+			this.data.folder = move(this.data.folder);
+			this.data.expanded = this.data.expanded.map(move);
+			this.data.icons = Object.fromEntries(Object.entries(this.data.icons).map(([p, i]) => [move(p), i]));
+			this.save();
+		}));
 	}
 
 	async activate() {
@@ -41,8 +50,9 @@ module.exports = class NavigatorPlugin extends Plugin {
 			leaf = ws.getLeftLeaf(false);
 			await leaf.setViewState({ type: VIEW, active: true });
 		}
-		ws.revealLeaf(leaf);
-		return leaf.view;
+		await ws.revealLeaf(leaf);
+		if (leaf.loadIfDeferred) await leaf.loadIfDeferred();
+		return leaf.view instanceof NavigatorView ? leaf.view : null;
 	}
 
 	save() {
@@ -93,12 +103,13 @@ class NavigatorView extends ItemView {
 		this.registerEvent(vault.on("create", () => this.refresh()));
 		this.registerEvent(vault.on("delete", () => this.refresh()));
 		this.registerEvent(vault.on("rename", (file, old) => {
-			if (this.data.folder === old) { this.data.folder = file.path; this.plugin.save(); }
+			if (this.cursor === old) this.cursor = file.path;
+			this.previews.delete(old);
 			this.refresh();
 		}));
 		this.registerEvent(vault.on("modify", (file) => {
 			this.previews.delete(file.path);
-			if (file.parent && file.parent.path === this.data.folder) this.refresh();
+			if (this.items && this.items.includes(file)) this.refresh();
 		}));
 		this.registerEvent(this.app.workspace.on("file-open", (file) => {
 			if (file) { this.cursor = file.path; this.markCursor(); }
@@ -162,7 +173,7 @@ class NavigatorView extends ItemView {
 		}
 		row.ondragover = (e) => {
 			const d = this.app.dragManager.draggable;
-			if (!d || (d.type !== "file" && d.type !== "folder")) return;
+			if (!d || !["file", "files", "folder"].includes(d.type)) return;
 			e.preventDefault();
 			row.addClass("is-drop");
 		};
@@ -170,11 +181,11 @@ class NavigatorView extends ItemView {
 		row.ondrop = async (e) => {
 			row.removeClass("is-drop");
 			const d = this.app.dragManager.draggable;
-			const item = d && (d.file || (d.files && d.files[0]));
-			if (!item || item === folder || item.parent === folder) return;
-			if (item instanceof TFolder && folder.path.startsWith(item.path + "/")) return;
+			const items = ((d && (d.files || (d.file && [d.file]))) || []).filter((item) =>
+				item !== folder && item.parent !== folder && !(item instanceof TFolder && folder.path.startsWith(item.path + "/")));
+			if (!items.length) return;
 			e.preventDefault();
-			await this.app.fileManager.renameFile(item, join(folder, item.name));
+			for (const item of items) await this.app.fileManager.renameFile(item, join(folder, item.name));
 		};
 	}
 
@@ -301,7 +312,7 @@ class NavigatorView extends ItemView {
 			.replace(/\[\[([^\]|]*\|)?([^\]]*)\]\]/g, "$2")
 			.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
 			.replace(/^\s*(#+|>|[-*+]( \[.\])?|\d+\.)\s*/gm, "")
-			.replace(/[*_`~=|]+/g, "")
+			.replace(/\*\*|__|~~|==|[*`|]/g, "")
 			.replace(/\s+/g, " ")
 			.trim()
 			.slice(0, 220);
@@ -353,6 +364,9 @@ class NavigatorView extends ItemView {
 		this.data.expanded = [...set];
 		this.cursor = file.path;
 		this.select(file.parent);
+		for (const el of [this.treeEl.querySelector(".is-selected"), this.listEl.querySelector(".is-selected")]) {
+			if (el) el.scrollIntoView({ block: "center" });
+		}
 	}
 
 	// ---- Kontextmenüs ----
@@ -386,7 +400,7 @@ class NavigatorView extends ItemView {
 
 	newNote(folder) {
 		ask(this.app, "Neue Notiz", "", async (name) => {
-			const file = await this.app.vault.create(join(folder, name + ".md"), "");
+			const file = await this.app.vault.create(join(folder, name.replace(/\.md$/i, "") + ".md"), "");
 			this.cursor = file.path;
 			await this.openItem(file, false);
 		});
@@ -403,11 +417,9 @@ class NavigatorView extends ItemView {
 	rename(item) {
 		const isNote = item instanceof TFile;
 		const ext = isNote ? "." + item.extension : "";
-		const icon = this.data.icons[item.path];
 		ask(this.app, "Umbenennen", isNote ? item.basename : item.name, async (name) => {
-			const old = item.path;
-			await this.app.fileManager.renameFile(item, join(item.parent, name + ext));
-			if (icon) { delete this.data.icons[old]; this.data.icons[item.path] = icon; this.plugin.save(); }
+			const path = join(item.parent, name + ext);
+			if (path !== item.path) await this.app.fileManager.renameFile(item, path);
 		});
 	}
 
