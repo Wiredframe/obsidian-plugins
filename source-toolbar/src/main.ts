@@ -72,7 +72,7 @@ const ORDER = [
 /** What the task button will do next, given what the line says now. */
 const TASK_TIPS: Record<string, string> = {
 	none: "Task list",
-	" ": "Task: mark as in progress",
+	" ": "Task: mark as indeterminate",
 	"/": "Task: mark as done",
 	x: "Task: back to a bullet",
 };
@@ -126,7 +126,7 @@ export default class SourceToolbarPlugin extends Plugin {
 		});
 		this.addCommand({
 			id: "task-in-progress",
-			name: "Task: mark as in progress",
+			name: "Task: mark as indeterminate",
 			editorCallback: (ed: Editor) => setTask(ed, "/"),
 		});
 		this.addCommand({

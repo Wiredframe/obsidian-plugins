@@ -226,7 +226,7 @@ export function toggleDone(ed: Editor): void {
 }
 
 /** The markers the button walks through. Obsidian takes any single character
- *  here and hands it to CSS as data-task, so "/" for half-done is a convention
+ *  here and hands it to CSS as data-task, so "/" for indeterminate is a convention
  *  rather than a feature: Tasks, Minimal and Things all read it that way, and
  *  this plugin paints it itself so it does not need any of them. */
 const TASK_CYCLE = [" ", "/", "x"];
@@ -243,7 +243,7 @@ export function taskState(ed: Editor): string | null {
 	return null;
 }
 
-/** Walk the selected lines on one step: nothing to do, to in progress, to
+/** Walk the selected lines on one step: nothing to do, to indeterminate, to
  *  done, and then out of task-hood again to a plain bullet. The whole
  *  selection moves together, from whatever its first task says. */
 export function cycleTask(ed: Editor): void {

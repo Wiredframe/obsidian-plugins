@@ -25,13 +25,9 @@ bar tells you where you are.
 ## Indeterminate tasks
 
 The task button cycles through to do, indeterminate (`- [/]`), done and back to
-a plain bullet. Obsidian exposes the state to CSS as `data-task="/"`.
-
-Obsidian counts every character other than a space as checked, so without help
-a half-done task is painted exactly like a finished one. This plugin paints it
-itself, as an open box with a bar rather than a tick, the way Obsidian draws
-indeterminate everywhere else in its own interface. No theme required. Its text
-is left un-struck-through and un-greyed, because it is not done yet.
+a plain bullet. Obsidian would draw `[/]` as checked, so the plugin draws it as
+an open box with a bar, like Obsidian's own indeterminate checkboxes, and leaves
+the text unstruck.
 
 A whole selection moves together, taking its cue from its first task, so a block
 of mixed items lines up on one press.
@@ -48,7 +44,7 @@ instead. Tables use a sweep-out grid, up to 8 x 8. Vault links follow whichever
 link style the vault is set to, wiki or Markdown.
 
 Every button is a command as well, so anything can have a keyboard shortcut.
-Four commands have no button: tick or untick a task, mark one as in progress,
+Four commands have no button: tick or untick a task, mark one as indeterminate,
 turn a task list on or off in one go, and show or hide the bar.
 
 ## Settings
