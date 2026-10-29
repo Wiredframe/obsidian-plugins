@@ -279,7 +279,15 @@ class NavigatorView extends ItemView {
 			else setIcon(row.createDiv("wfn-type"), TYPE_ICONS[ext] || "file");
 		}
 
-		row.onclick = (e) => { this.cursor = file.path; this.markCursor(); this.openItem(file, e.metaKey ? "tab" : false); };
+		// Klick zeigt die Datei, der Fokus bleibt in der Liste (schnell weiterblättern); Doppelklick springt in den Editor
+		row.onclick = (e) => {
+			this.cursor = file.path;
+			this.markCursor();
+			this.listEl.focus();
+			if (e.metaKey) this.openItem(file, "tab");
+			else if (this.opensInside(file)) this.peek(file);
+		};
+		row.ondblclick = () => this.openItem(file, false);
 		row.oncontextmenu = (e) => { e.preventDefault(); this.fileMenu(e, file); };
 		row.draggable = true;
 		row.ondragstart = (e) => {
@@ -334,7 +342,7 @@ class NavigatorView extends ItemView {
 		const row = this.listEl.querySelector(".wfn-item.is-selected");
 		if (row) row.scrollIntoView({ block: "nearest" });
 		// Wie in Mail: Pfeiltasten zeigen den Inhalt gleich an, der Fokus bleibt in der Liste
-		if (this.opensInside(next)) this.openItem(next, false, false);
+		if (this.opensInside(next)) this.peek(next);
 	}
 
 	listKey(e) {
@@ -349,6 +357,12 @@ class NavigatorView extends ItemView {
 
 	opensInside(file) {
 		return this.app.viewRegistry.isExtensionRegistered(file.extension);
+	}
+
+	// Datei anzeigen, aber in der Liste bleiben. Der Editor holt sich den Fokus teils erst nach dem Öffnen zurück.
+	async peek(file) {
+		await this.openItem(file, false, false);
+		if (this.cursor === file.path) this.listEl.focus();
 	}
 
 	async openItem(file, where, focus = true) {
