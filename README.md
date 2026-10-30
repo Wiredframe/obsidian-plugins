@@ -4,7 +4,7 @@ A handful of deliberately tiny Obsidian plugins and one theme, written to replac
 
 | Folder | ID | What it does |
 |---|---|---|
-| `navigator` | `wf-navigator` | Folders and a file list side by side, like Apple Mail or Notes. Shows every file type (PDFs, images, Office files) with a preview line or thumbnail, keyboard navigation, a filter field, a toggle for notes only or all files, folder icons via the context menu. Follows the active tab into its folder and highlights the file. "Zuletzt bearbeitet" at the top lists the 50 most recently modified notes. Meant to replace the core file explorer. |
+| `navigator` | `wf-navigator` | Folders and a file list side by side, like Apple Mail or Notes. Shows every file type (PDFs, images, Office files) with a preview line or thumbnail, keyboard navigation, a filter field, a toggle for notes only or all files, folder icons via the context menu. Follows the active tab into its folder and highlights the file. "Zuletzt bearbeitet" at the top lists the 50 most recently modified notes. Styled like Mail: grey folder column with the vault as a section header, white list. In the left sidebar it replaces Obsidian's tab bar and vault switcher with its own title bar. Meant to replace the core file explorer. |
 | `erinnerungen` | `wf-erinnerungen` | Reminders: `- [ ] Task (@31 July 2026 14:00)` notifies you when due, the status bar shows what is overdue, typing `(@` suggests dates. Uses the format of the Reminder community plugin. |
 | `source-toolbar` | `source-toolbar` | A formatting toolbar above the editor (TypeScript, see its own README). |
 | `open-in-chrome` | `open-in-chrome` | Cmd + Option + click opens an external link in Google Chrome instead of the default browser. |

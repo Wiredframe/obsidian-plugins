@@ -32,7 +32,8 @@ module.exports = class NavigatorPlugin extends Plugin {
 				return true;
 			},
 		});
-		this.app.workspace.onLayoutReady(() => {
+		// Open on app start only: after a plugin reload Obsidian restores the existing tab itself, a bit later
+		if (!this.app.workspace.layoutReady) this.app.workspace.onLayoutReady(() => {
 			if (!this.app.workspace.getLeavesOfType(VIEW).length) this.activate();
 		});
 		// Carry stored paths (selected folder, expanded folders, icons) along when folders are renamed or moved
@@ -82,11 +83,18 @@ class NavigatorView extends ItemView {
 	async onOpen() {
 		this.contentEl.addClass("wfn-view");
 		const root = this.contentEl.createDiv("wfn");
-		this.treeEl = root.createDiv({ cls: "wfn-tree", attr: { tabindex: "0" } });
+		// Obsidian's tab bar and vault switcher are hidden (styles.css), this bar takes their place like Mail's title bar
+		const side = root.createDiv("wfn-side");
+		const bar = side.createDiv("wfn-titlebar");
+		const hide = bar.createDiv({ cls: "clickable-icon", attr: { "aria-label": "Seitenleiste ausblenden" } });
+		setIcon(hide, "panel-left");
+		hide.onclick = () => this.app.workspace.leftSplit.collapse();
+		this.treeEl = side.createDiv({ cls: "wfn-tree", attr: { tabindex: "0" } });
 		const pane = root.createDiv("wfn-pane");
 		const head = pane.createDiv("wfn-head");
-		this.headTitleEl = head.createDiv("wfn-title");
-		this.countEl = head.createDiv("wfn-count");
+		const heading = head.createDiv("wfn-heading");
+		this.headTitleEl = heading.createDiv("wfn-title");
+		this.countEl = heading.createDiv("wfn-count");
 		this.kindEl = head.createDiv("clickable-icon");
 		this.kindEl.onclick = () => { this.data.notesOnly = !this.data.notesOnly; this.plugin.save(); this.render(); };
 		const add = head.createDiv({ cls: "clickable-icon", attr: { "aria-label": "Neue Notiz" } });
@@ -170,18 +178,22 @@ class NavigatorView extends ItemView {
 		row.style.setProperty("--depth", String(Math.max(0, depth - 1)));
 		row.toggleClass("is-selected", !this.isRecent() && folder.path === this.folder().path);
 		row.toggleClass("is-collapsed", !open);
-		const chevron = row.createDiv("wfn-chevron");
-		if (hasChildren && !folder.isRoot()) {
-			setIcon(chevron, "chevron-down");
-			chevron.onclick = (e) => { e.stopPropagation(); this.toggle(folder); };
+		// The vault itself reads as a section header like an account in Mail, but stays selectable
+		row.toggleClass("wfn-section", folder.isRoot());
+		if (!folder.isRoot()) {
+			const chevron = row.createDiv("wfn-chevron");
+			if (hasChildren) {
+				setIcon(chevron, "chevron-down");
+				chevron.onclick = (e) => { e.stopPropagation(); this.toggle(folder); };
+			}
+			setIcon(row.createDiv("wfn-icon"), this.data.icons[folder.path] || "folder");
 		}
-		setIcon(row.createDiv("wfn-icon"), folder.isRoot() ? "vault" : this.data.icons[folder.path] || "folder");
 		row.createDiv({ cls: "wfn-name", text: folder.isRoot() ? this.app.vault.getName() : folder.name });
 		const files = folder.children.filter((c) => c instanceof TFile && this.shows(c)).length;
 		if (files) row.createDiv({ cls: "wfn-num", text: String(files) });
 
 		row.onclick = () => this.select(folder);
-		row.ondblclick = () => hasChildren && this.toggle(folder);
+		row.ondblclick = () => hasChildren && !folder.isRoot() && this.toggle(folder);
 		row.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); this.folderMenu(e, folder); };
 
 		// Dragging: move folders, drop files and folders here
