@@ -447,7 +447,7 @@ class NavigatorView extends ItemView {
 
 	folderMenu(e, folder) {
 		const menu = new Menu();
-		menu.addItem((i) => i.setTitle("Neue Notiz …").setIcon("square-pen").onClick(() => this.newNote(folder)));
+		menu.addItem((i) => i.setTitle("Neue Notiz").setIcon("square-pen").onClick(() => this.newNote(folder)));
 		menu.addItem((i) => i.setTitle("Neuer Ordner …").setIcon("folder-plus").onClick(() => this.newFolder(folder)));
 		if (!folder.isRoot()) {
 			menu.addSeparator();
@@ -461,12 +461,11 @@ class NavigatorView extends ItemView {
 		menu.showAtMouseEvent(e);
 	}
 
-	newNote(folder) {
-		ask(this.app, "Neue Notiz", "", async (name) => {
-			const file = await this.app.vault.create(join(folder, name.replace(/\.md$/i, "") + ".md"), "");
-			this.cursor = file.path;
-			await this.openItem(file, false);
-		});
+	// Like Obsidian's own "New note": create "Unbenannt", open it and select the inline title for renaming
+	async newNote(folder) {
+		const file = await this.app.fileManager.createNewMarkdownFile(folder, "Unbenannt");
+		this.cursor = file.path;
+		await this.app.workspace.getLeaf(false).openFile(file, { active: true, state: { mode: "source" }, eState: { rename: "all" } });
 	}
 
 	newFolder(parent) {
