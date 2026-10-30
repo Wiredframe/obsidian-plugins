@@ -63,6 +63,15 @@
   --wfn-selection-focus-text: #ffffff;
 }
 
+/* ── Dark mode: default colours, the bright lime of wiredframe.de as the accent ── */
+
+.theme-dark {
+  --accent-h: 93;                 /* #beff8a */
+  --accent-s: 100%;
+  --accent-l: 77%;
+  --text-on-accent: #193239;      /* petrol, the site's dark ground */
+}
+
 /* ── Notes only: variables for the sheet ────────────────────────────── */
 
 .workspace-leaf-content[data-type="markdown"] .view-content,

@@ -8,7 +8,7 @@ A handful of deliberately tiny Obsidian plugins and one theme, written to replac
 | `erinnerungen` | `wf-erinnerungen` | Reminders: `- [ ] Task (@31 July 2026 14:00)` notifies you when due, the status bar shows what is overdue, typing `(@` suggests dates. Uses the format of the Reminder community plugin. |
 | `source-toolbar` | `source-toolbar` | A formatting toolbar above the editor (TypeScript, see its own README). |
 | `open-in-chrome` | `open-in-chrome` | Cmd + Option + click opens an external link in Google Chrome instead of the default browser. |
-| `theme` | Wiredframe | Notes styled like a German tax form: section bars for H2, entry fields, table grids, tick boxes. Light mode uses the palette of the wiredframe app (theme wiredframe-weiss): white ground, a deep green accent, petrol text and table heads. Dark mode keeps the default theme's colours and your accent colour. Headings are regular weight except the title, only bold you set yourself is bold. |
+| `theme` | Wiredframe | Notes styled like a German tax form: section bars for H2, entry fields, table grids, tick boxes. Light mode uses the palette of the wiredframe app (theme wiredframe-weiss): white ground, a deep green accent, petrol text and table heads. Dark mode keeps the default theme's colours with the bright lime of wiredframe.de as the accent. Headings are regular weight except the title, only bold you set yourself is bold. |
 
 Navigator, Erinnerungen and Open in Chrome are plain JavaScript. Source Toolbar needs `npm install && npm run build` once.
 
