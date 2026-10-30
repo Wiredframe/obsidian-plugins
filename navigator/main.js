@@ -130,6 +130,9 @@ class NavigatorView extends ItemView {
 			if (this.items && this.items.includes(file)) { this.cursor = file.path; this.markCursor(); this.scrollToCursor(); }
 			else this.reveal(file);
 		}));
+		// After a reload no file-open arrives, so start with the active file marked
+		const active = this.app.workspace.getActiveFile();
+		if (active) this.cursor = active.path;
 		this.render();
 	}
 

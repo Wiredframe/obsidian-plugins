@@ -2,7 +2,7 @@
 
 .wfn-view {
 	/* Mail: grey sidebar, white list, neutral grey selection while the column has no focus */
-	--wfn-side: color-mix(in srgb, var(--text-normal) 4%, var(--background-primary));
+	--wfn-side: var(--background-secondary);
 	--wfn-selected: color-mix(in srgb, var(--text-normal) 9%, transparent);
 	--wfn-bar: 52px;
 }
@@ -71,7 +71,8 @@
 }
 .wfn-row:hover { background: var(--background-modifier-hover); }
 .wfn-row.is-selected { background: var(--wfn-selected); }
-.wfn-tree:focus .wfn-row.is-selected { background: var(--interactive-accent); color: var(--text-on-accent); }
+/* A theme can set --wfn-selection(-text) and, for the focused column, --wfn-selection-focus(-text); otherwise the accent colour */
+.wfn-tree:focus .wfn-row.is-selected { background: var(--wfn-selection-focus, var(--interactive-accent)); color: var(--wfn-selection-focus-text, var(--text-on-accent)); }
 .wfn-row.is-drop { box-shadow: inset 0 0 0 2px var(--interactive-accent); }
 
 .wfn-chevron { flex: none; width: 12px; display: flex; color: var(--text-faint); }
@@ -165,7 +166,8 @@ input.wfn-filter:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--interact
 .wfn-item.is-selected::before, .wfn-item.is-selected + .wfn-item::before { display: none; }
 .wfn-item:hover { background: var(--background-modifier-hover); }
 /* The selected file stays strongly highlighted, even while the editor has focus */
-.wfn-item.is-selected, .wfn-item.is-selected:hover { background: var(--interactive-accent); color: var(--text-on-accent); }
+.wfn-item.is-selected, .wfn-item.is-selected:hover { background: var(--wfn-selection, var(--interactive-accent)); color: var(--wfn-selection-text, var(--text-on-accent)); }
+.wfn-list:focus .wfn-item.is-selected { background: var(--wfn-selection-focus, var(--interactive-accent)); color: var(--wfn-selection-focus-text, var(--text-on-accent)); }
 .wfn-item.is-selected * { color: inherit !important; }
 .wfn-item.is-selected .wfn-item-preview, .wfn-item.is-selected .wfn-item-date { opacity: 0.85; }
 
@@ -175,7 +177,7 @@ input.wfn-filter:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--interact
 	flex: 1;
 	min-width: 0;
 	font-weight: 700;
-	font-size: 13px;
+	font-size: 14px;
 	color: var(--text-normal);
 	overflow: hidden;
 	text-overflow: ellipsis;
