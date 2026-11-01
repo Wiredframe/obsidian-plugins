@@ -1,14 +1,11 @@
 /* Wiredframe: notes set like a German technical book (Rheinwerk, formerly Galileo Press) with a bit
-   of a magazine. Serif text from the settings, headings in the sans-serif interface font. Sections
-   open with a short accent bar on a hairline, H4 to H6 are run-in heads in the accent colour.
-   Lightly tinted surfaces carry everything that stands apart from the running text: callouts, table
-   heads and rows, code, highlights. The first paragraph after the title is set as a lead.
-   Fonts come from the settings (Appearance › Font). Light mode uses the colours of the wiredframe
-   app (wiredframe-weiss), dark mode keeps the default theme's greys with the bright lime of
-   wiredframe.de as the accent.
-
-   Extra:
-   - cssclasses: nummeriert   numbers H2 and H3 like book sections (1, 1.1, 1.2, 2 …) */
+   of a magazine. Serif text from the settings, headings in the sans-serif interface font, so the
+   structure reads from the contrast of two typefaces. The title carries a short accent bar and is
+   followed by a lead, every H2 opens a section with an accent bar on a hairline, H4 to H6 take the
+   accent colour. Lightly tinted surfaces carry what stands apart from the running text: callouts,
+   quotes, code, table heads and rows. Fonts come from the settings (Appearance › Font).
+   Light mode uses the colours of the wiredframe app (wiredframe-weiss), dark mode keeps the
+   default theme's greys with the bright lime of wiredframe.de as the accent. */
 
 /* ── Colours: references to the default theme's palette only ─────────────
    Deliberately --color-base rather than --background-… and --text-…: those are redefined below for
@@ -16,16 +13,14 @@
 
 .theme-light, .theme-dark {
   --wf-text: var(--color-base-100);
-  --wf-leise: var(--color-base-70);          /* captions, quotes, labels */
+  --wf-leise: var(--color-base-70);          /* labels, done tasks, line numbers */
   --wf-linie: var(--color-base-35);          /* hairlines */
-  --wf-regel: var(--color-base-100);         /* strong rules (tables) */
-  --wf-feld: var(--color-base-10);           /* code, light surfaces */
   --wf-akzent: var(--color-accent);          /* accent colour from the settings */
-  --wf-auswahl: color-mix(in srgb, var(--color-accent) 25%, var(--color-base-00));
-  --wf-hover: color-mix(in srgb, var(--color-accent) 7%, var(--color-base-00));
-  --wf-tint: color-mix(in srgb, var(--color-accent) 7%, var(--color-base-00));     /* tinted surfaces */
-  --wf-tint-stark: color-mix(in srgb, var(--color-accent) 14%, var(--color-base-00));
-  --wf-zebra: color-mix(in srgb, var(--color-accent) 4%, var(--color-base-10));
+  --wf-auswahl: color-mix(in srgb, var(--color-accent) 25%, var(--color-base-00));  /* selection, highlights */
+  --wf-tint: color-mix(in srgb, var(--color-accent) 7%, var(--color-base-00));      /* tinted surfaces */
+  --wf-tint-stark: color-mix(in srgb, var(--color-accent) 14%, var(--color-base-00)); /* table heads */
+  --wf-zebra: color-mix(in srgb, var(--color-accent) 4%, var(--color-base-10));     /* every other table row */
+  --wf-hover: var(--wf-tint);
   --wf-warm: var(--color-orange);            /* strings and values in code */
   --wf-warnung: var(--color-red);
 }
@@ -71,10 +66,8 @@
   --accent-s: 100%;
   --accent-l: 77%;
   --text-on-accent: #193239;      /* petrol, the site's dark ground */
-  --wf-feld: var(--color-base-20);
-  --wf-tint: color-mix(in srgb, var(--color-accent) 7%, var(--color-base-00));
-  --wf-tint-stark: color-mix(in srgb, var(--color-accent) 13%, var(--color-base-00));
-  --wf-zebra: color-mix(in srgb, var(--color-accent) 5%, var(--color-base-20));
+  --wf-tint-stark: color-mix(in srgb, var(--color-accent) 12%, var(--color-base-00));
+  --wf-zebra: color-mix(in srgb, var(--color-accent) 4%, var(--color-base-20));
 }
 
 /* ── Notes only: the page ───────────────────────────────────────────── */
@@ -109,8 +102,7 @@
   --callout-radius: 0;
   --image-radius: 2px;
 
-  /* Headings. Sizes stay close to the text (a book's A head is barely larger than its text);
-     the sans-serif face, weight and space carry the hierarchy. H4 to H6 take the accent colour. */
+  /* Headings: a moderate scale, the sans-serif face, weight and space do the rest */
   --inline-title-font: var(--font-interface);
   --inline-title-size: 2.1em;
   --inline-title-weight: 700;
@@ -184,8 +176,6 @@
   --blockquote-border-thickness: 3px;
   --blockquote-font-style: normal;
   --blockquote-color: var(--wf-text);
-  --hr-color: var(--wf-linie);
-  --hr-thickness: 1px;
   --list-marker-color: var(--wf-akzent);
   --list-bullet-radius: 0;            /* square bullets, like a book's */
   --list-bullet-size: 0.32em;
@@ -198,9 +188,8 @@
   --checkbox-marker-color: var(--text-on-accent);
   --checklist-done-color: var(--wf-leise);
 
-  /* Tables: open, rules only */
+  /* Tables (the look itself is set further down) */
   --table-border-width: 0;
-  --table-border-color: var(--wf-linie);
   --table-header-background: var(--wf-tint-stark);
   --table-header-background-hover: var(--wf-tint-stark);
   --table-header-color: var(--wf-text);
@@ -211,7 +200,7 @@
   --table-row-background-hover: var(--wf-hover);
   --table-row-alt-background: var(--wf-zebra);
   --table-column-alt-background: transparent;
-  --table-cell-padding: 0.45em 0.8em;
+  --table-cell-padding: 0.7em 1em;   /* room to breathe */
   --table-selection: color-mix(in srgb, var(--wf-auswahl) 60%, transparent);
   --table-selection-border-color: var(--wf-akzent);
   --table-drag-handle-background-active: var(--wf-akzent);
@@ -317,12 +306,9 @@
   font-weight: 400;
 }
 
-/* A heading at the very top of a note needs neither space nor rule above it */
+/* A heading at the very top of a note needs no space above it */
 .markdown-rendered .markdown-preview-sizer > div:is(.el-h1, .el-h2, .el-h3, .el-h4, .el-h5, .el-h6):nth-child(1 of :not(.mod-header, .mod-frontmatter, .markdown-preview-pusher)) > :is(h1, h2, h3, h4, h5, h6) {
   margin-top: 0;
-}
-.markdown-rendered .markdown-preview-sizer > div.el-h2:nth-child(1 of :not(.mod-header, .mod-frontmatter, .markdown-preview-pusher)) > h2 {
-  padding-top: 0.6em;
 }
 
 /* ── Running text ───────────────────────────────────────────────────── */
@@ -339,7 +325,9 @@
 .markdown-rendered :is(ul, ol) ol {
   margin-block: 0.15em;
 }
-.markdown-rendered ol > li::marker {
+/* Numbers of ordered lists in the accent colour and the sans face, in both views */
+.markdown-rendered ol > li::marker,
+.markdown-source-view.mod-cm6 .cm-formatting-list-ol {
   color: var(--wf-akzent);
   font-family: var(--font-interface);
   font-size: 0.9em;
@@ -368,7 +356,7 @@
   font-weight: 700;
 }
 
-/* Highlight: a marker stroke rather than a box */
+/* Highlight: the muted lime of the selection, like a marker pen */
 .markdown-rendered mark,
 .markdown-source-view.mod-cm6 .cm-highlight {
   background: color-mix(in srgb, var(--wf-auswahl) 85%, transparent);
@@ -426,17 +414,20 @@
   line-height: 1.5;
 }
 
-/* ── Tables: a tinted head between accent rules, rows on a faint zebra ── */
+/* ── Tables: a tinted head between accent rules, rows on a faint zebra ──
+   The zebra comes from Obsidian's own --table-row-alt-background (set above), so reading view and
+   editor stripe the same rows. */
 
 .markdown-rendered table {
   border-collapse: collapse;
-  margin-block: 1.5em;
+  margin-block: 1.8em;
   border-top: 2px solid var(--wf-akzent);
   border-bottom: 2px solid var(--wf-akzent);
   font-family: var(--font-interface);
   font-variant-numeric: tabular-nums;
 }
-.markdown-rendered :is(th, td) {
+.markdown-rendered :is(th, td),
+.markdown-source-view.mod-cm6 .cm-table-widget .table-cell-wrapper {
   border: none;
   padding: var(--table-cell-padding);
 }
@@ -444,9 +435,6 @@
   background: var(--wf-tint-stark);
   text-align: start;
   vertical-align: bottom;
-}
-.markdown-rendered tbody tr:nth-child(even) td {
-  background: var(--wf-zebra);
 }
 .markdown-rendered tbody tr:hover td {
   background: var(--wf-hover);
@@ -464,9 +452,6 @@
 }
 .markdown-source-view.mod-cm6 .cm-table-widget th {
   background: var(--wf-tint-stark);
-}
-.markdown-source-view.mod-cm6 .cm-table-widget tr:nth-child(odd) td {
-  background: var(--wf-zebra);
 }
 
 /* ── Callouts: a lightly tinted box with an accent edge, title and text in the sans face ── */
@@ -545,16 +530,3 @@
 .markdown-source-view.mod-cm6 .cm-lineNumbers .cm-active {
   color: var(--wf-leise);
 }
-
-/* ── Numbered sections: cssclasses: nummeriert ── */
-
-.markdown-preview-view.nummeriert .markdown-preview-sizer { counter-reset: wf-h2; }
-.markdown-preview-view.nummeriert h2 { counter-increment: wf-h2; counter-reset: wf-h3; }
-.markdown-preview-view.nummeriert h3 { counter-increment: wf-h3; }
-.markdown-preview-view.nummeriert :is(h2, h3)::before {
-  color: var(--wf-akzent);
-  margin-right: 0.6em;
-  font-variant-numeric: tabular-nums;
-}
-.markdown-preview-view.nummeriert h2::before { content: counter(wf-h2); }
-.markdown-preview-view.nummeriert h3::before { content: counter(wf-h2) "." counter(wf-h3); }
