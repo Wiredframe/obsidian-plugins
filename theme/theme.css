@@ -270,11 +270,13 @@
   line-height: 1.55;
 }
 
-/* H2 opens a section: a hairline across the full width with a short accent bar on it */
+/* H2 opens a section: a hairline across the full width with a short accent bar on it. Both are
+   backgrounds, so the hairline runs through the middle of the bar instead of touching its edge. */
 .markdown-rendered h2,
 .markdown-source-view.mod-cm6 .HyperMD-header-2 {
-  border-top: 1px solid var(--wf-linie);
-  background: linear-gradient(var(--wf-akzent), var(--wf-akzent)) 0 -1px / 2.4em 3px no-repeat;
+  background:
+    linear-gradient(var(--wf-akzent), var(--wf-akzent)) 0 0 / 2.4em 3px no-repeat,
+    linear-gradient(var(--wf-linie), var(--wf-linie)) 0 1px / 100% 1px no-repeat;
 }
 .markdown-rendered h2 {
   margin-top: 2.2em;
