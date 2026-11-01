@@ -1,10 +1,14 @@
-/* Wiredframe: notes set like a technical book (the interiors of O'Reilly and similar publishers).
-   Serif text from the settings, headings in the sans-serif interface font, so the structure reads
-   from the contrast of two typefaces rather than from large sizes. Headings sit closer to the text
-   they introduce than to the text before them, tables are open with horizontal rules only, notes
-   are set apart by rules above and below. Fonts come from the settings (Appearance › Font).
-   Light mode uses the colours of the wiredframe app (wiredframe-weiss), dark mode keeps the
-   default theme's greys with the bright lime of wiredframe.de as the accent. */
+/* Wiredframe: notes set like a German technical book (Rheinwerk, formerly Galileo Press) with a bit
+   of a magazine. Serif text from the settings, headings in the sans-serif interface font. Sections
+   open with a short accent bar on a hairline, H4 to H6 are run-in heads in the accent colour.
+   Lightly tinted surfaces carry everything that stands apart from the running text: callouts, table
+   heads and rows, code, highlights. The first paragraph after the title is set as a lead.
+   Fonts come from the settings (Appearance › Font). Light mode uses the colours of the wiredframe
+   app (wiredframe-weiss), dark mode keeps the default theme's greys with the bright lime of
+   wiredframe.de as the accent.
+
+   Extra:
+   - cssclasses: nummeriert   numbers H2 and H3 like book sections (1, 1.1, 1.2, 2 …) */
 
 /* ── Colours: references to the default theme's palette only ─────────────
    Deliberately --color-base rather than --background-… and --text-…: those are redefined below for
@@ -19,6 +23,9 @@
   --wf-akzent: var(--color-accent);          /* accent colour from the settings */
   --wf-auswahl: color-mix(in srgb, var(--color-accent) 25%, var(--color-base-00));
   --wf-hover: color-mix(in srgb, var(--color-accent) 7%, var(--color-base-00));
+  --wf-tint: color-mix(in srgb, var(--color-accent) 7%, var(--color-base-00));     /* tinted surfaces */
+  --wf-tint-stark: color-mix(in srgb, var(--color-accent) 14%, var(--color-base-00));
+  --wf-zebra: color-mix(in srgb, var(--color-accent) 4%, var(--color-base-10));
   --wf-warm: var(--color-orange);            /* strings and values in code */
   --wf-warnung: var(--color-red);
 }
@@ -65,6 +72,9 @@
   --accent-l: 77%;
   --text-on-accent: #193239;      /* petrol, the site's dark ground */
   --wf-feld: var(--color-base-20);
+  --wf-tint: color-mix(in srgb, var(--color-accent) 7%, var(--color-base-00));
+  --wf-tint-stark: color-mix(in srgb, var(--color-accent) 13%, var(--color-base-00));
+  --wf-zebra: color-mix(in srgb, var(--color-accent) 5%, var(--color-base-20));
 }
 
 /* ── Notes only: the page ───────────────────────────────────────────── */
@@ -102,13 +112,13 @@
   /* Headings. Sizes stay close to the text (a book's A head is barely larger than its text);
      the sans-serif face, weight and space carry the hierarchy. H4 to H6 take the accent colour. */
   --inline-title-font: var(--font-interface);
-  --inline-title-size: 1.9em;
+  --inline-title-size: 2.1em;
   --inline-title-weight: 700;
   --inline-title-line-height: 1.2;
   --inline-title-color: var(--wf-text);
-  --h1-size: 1.9em;
-  --h2-size: 1.35em;
-  --h3-size: 1.12em;
+  --h1-size: 2.1em;
+  --h2-size: 1.4em;
+  --h3-size: 1.15em;
   --h4-size: 1em;
   --h5-size: 0.92em;
   --h6-size: 0.86em;
@@ -155,7 +165,7 @@
   --tag-padding-y: 0.1em;
 
   /* Code: quiet surface, restrained syntax colours */
-  --code-background: var(--wf-feld);
+  --code-background: var(--wf-tint);
   --code-normal: var(--wf-text);
   --code-size: 0.86em;
   --code-comment: var(--wf-leise);
@@ -170,13 +180,15 @@
   --code-value: var(--wf-warm);
 
   /* Quotes, rules, lists, tasks */
-  --blockquote-border-color: var(--wf-linie);
-  --blockquote-border-thickness: 2px;
+  --blockquote-border-color: var(--wf-akzent);
+  --blockquote-border-thickness: 3px;
   --blockquote-font-style: normal;
-  --blockquote-color: var(--wf-leise);
+  --blockquote-color: var(--wf-text);
   --hr-color: var(--wf-linie);
   --hr-thickness: 1px;
   --list-marker-color: var(--wf-akzent);
+  --list-bullet-radius: 0;            /* square bullets, like a book's */
+  --list-bullet-size: 0.32em;
   --list-marker-color-hover: var(--wf-text);
   --checkbox-size: 16px;
   --checkbox-color: var(--wf-akzent);
@@ -189,15 +201,15 @@
   /* Tables: open, rules only */
   --table-border-width: 0;
   --table-border-color: var(--wf-linie);
-  --table-header-background: transparent;
-  --table-header-background-hover: transparent;
+  --table-header-background: var(--wf-tint-stark);
+  --table-header-background-hover: var(--wf-tint-stark);
   --table-header-color: var(--wf-text);
   --table-header-weight: 650;
   --table-header-size: 0.86em;
   --table-text-size: 0.92em;
   --table-background: transparent;
   --table-row-background-hover: var(--wf-hover);
-  --table-row-alt-background: transparent;
+  --table-row-alt-background: var(--wf-zebra);
   --table-column-alt-background: transparent;
   --table-cell-padding: 0.45em 0.8em;
   --table-selection: color-mix(in srgb, var(--wf-auswahl) 60%, transparent);
@@ -205,10 +217,10 @@
   --table-drag-handle-background-active: var(--wf-akzent);
   --table-drag-handle-color-active: var(--text-on-accent);
 
-  /* Callouts: set apart by rules, no box */
+  /* Callouts: a tinted box with an accent edge */
   --callout-border-width: 0;
   --callout-border-opacity: 1;
-  --callout-padding: 0.75em 0;
+  --callout-padding: 0.85em 1.1em 0.95em;
   --callout-title-weight: 650;
   --callout-title-size: 0.86em;
   --callout-content-padding: 0;
@@ -248,21 +260,41 @@
   letter-spacing: -0.012em;
 }
 
-.inline-title { margin-bottom: 0.6em; }
-.markdown-rendered h1 { margin-top: 1.6em; margin-bottom: 0.6em; }
+/* The title carries a short, thick accent bar above it, like the opener of a magazine article */
+.inline-title,
+.markdown-rendered h1 {
+  padding-top: 0.45em;
+  background: linear-gradient(var(--wf-akzent), var(--wf-akzent)) top left / 1.6em 0.16em no-repeat;
+}
+.inline-title { margin-bottom: 0.5em; }
+.markdown-rendered h1 { margin-top: 1.4em; margin-bottom: 0.5em; }
 .markdown-source-view.mod-cm6 .HyperMD-header-1 { padding-top: 1em; padding-bottom: 0.2em; }
+.markdown-source-view.mod-cm6 .HyperMD-header-1 .cm-header-1:not(.cm-formatting) {
+  display: inline-block;
+  padding-top: 0.45em;
+  background: linear-gradient(var(--wf-akzent), var(--wf-akzent)) top left / 1.6em 0.16em no-repeat;
+}
 
-/* H2 opens a section: a hairline above it across the full width, like a new section in a book */
+/* Lead: the first paragraph after the title, a little larger, as in a magazine */
+.markdown-rendered div:is(.el-h1, .mod-header) + div.el-p > p {
+  font-size: 1.12em;
+  line-height: 1.55;
+}
+
+/* H2 opens a section: a hairline across the full width with a short accent bar on it */
+.markdown-rendered h2,
+.markdown-source-view.mod-cm6 .HyperMD-header-2 {
+  border-top: 1px solid var(--wf-linie);
+  background: linear-gradient(var(--wf-akzent), var(--wf-akzent)) 0 -1px / 2.4em 3px no-repeat;
+}
 .markdown-rendered h2 {
   margin-top: 2.2em;
   margin-bottom: 0.55em;
   padding-top: 0.6em;
-  border-top: 1px solid var(--wf-linie);
 }
 .markdown-source-view.mod-cm6 .HyperMD-header-2 {
   padding-top: 0.6em !important;
   padding-bottom: 0.15em !important;
-  border-top: 1px solid var(--wf-linie);
 }
 /* CodeMirror miscounts heights when lines carry margins, so the room above the rule goes on the
    line before it. Same shape as Obsidian's own rule for the line after a heading, one class stronger. */
@@ -288,8 +320,9 @@
 /* A heading at the very top of a note needs neither space nor rule above it */
 .markdown-rendered .markdown-preview-sizer > div:is(.el-h1, .el-h2, .el-h3, .el-h4, .el-h5, .el-h6):nth-child(1 of :not(.mod-header, .mod-frontmatter, .markdown-preview-pusher)) > :is(h1, h2, h3, h4, h5, h6) {
   margin-top: 0;
-  padding-top: 0;
-  border-top: none;
+}
+.markdown-rendered .markdown-preview-sizer > div.el-h2:nth-child(1 of :not(.mod-header, .mod-frontmatter, .markdown-preview-pusher)) > h2 {
+  padding-top: 0.6em;
 }
 
 /* ── Running text ───────────────────────────────────────────────────── */
@@ -344,20 +377,35 @@
   border-radius: 2px;
 }
 
-/* Section break: a short centred rule instead of a line across the page */
+/* Section break: three small squares in the accent colour instead of a line */
 .markdown-rendered hr,
 .markdown-source-view.mod-cm6 hr {
-  width: 30%;
-  margin: 2.2em auto;
+  overflow: visible;
+  height: 1em;
+  margin: 2em auto;
   border: none;
-  border-top: 1px solid var(--wf-linie);
+  text-align: center;
+  background: none;
+}
+.markdown-rendered hr::after,
+.markdown-source-view.mod-cm6 hr::after {
+  content: "■ ■ ■";
+  color: var(--wf-akzent);
+  font-family: var(--font-interface);
+  font-size: 0.55em;
+  letter-spacing: 0.9em;
+  margin-right: -0.9em;
 }
 
-/* Quote: indented and set a little quieter, with a fine rule */
+/* Quote: a pull quote on a tinted ground with an accent edge */
 .markdown-rendered blockquote {
-  margin: 1.4em 0 1.4em 0.2em;
-  padding: 0.1em 0 0.1em 1.2em;
-  background: transparent;
+  margin: 1.5em 0;
+  padding: 0.7em 1.2em;
+  background: var(--wf-tint);
+  font-size: 1.06em;
+}
+.markdown-source-view.mod-cm6 .HyperMD-quote {
+  background: var(--wf-tint);
 }
 .markdown-source-view.mod-cm6 .HyperMD-quote::before {
   margin-inline-end: 0.9em;
@@ -372,19 +420,19 @@
 }
 .markdown-rendered pre {
   border: none;
-  border-left: 2px solid var(--wf-linie);
+  border-radius: 4px;
   padding: 0.9em 1.2em;
   margin-block: 1.3em;
   line-height: 1.5;
 }
 
-/* ── Tables: open, with a strong rule above and below and a hairline under the head ── */
+/* ── Tables: a tinted head between accent rules, rows on a faint zebra ── */
 
 .markdown-rendered table {
   border-collapse: collapse;
-  margin-block: 1.4em;
-  border-top: 1.5px solid var(--wf-regel);
-  border-bottom: 1.5px solid var(--wf-regel);
+  margin-block: 1.5em;
+  border-top: 2px solid var(--wf-akzent);
+  border-bottom: 2px solid var(--wf-akzent);
   font-family: var(--font-interface);
   font-variant-numeric: tabular-nums;
 }
@@ -393,43 +441,42 @@
   padding: var(--table-cell-padding);
 }
 .markdown-rendered th {
-  border-bottom: 1px solid var(--wf-regel);
+  background: var(--wf-tint-stark);
   text-align: start;
   vertical-align: bottom;
 }
-.markdown-rendered tr + tr td {
-  border-top: 1px solid var(--wf-linie);
+.markdown-rendered tbody tr:nth-child(even) td {
+  background: var(--wf-zebra);
 }
-.markdown-rendered :is(th, td):first-child { padding-inline-start: 0.2em; }
-.markdown-rendered :is(th, td):last-child { padding-inline-end: 0.2em; }
+.markdown-rendered tbody tr:hover td {
+  background: var(--wf-hover);
+}
 
-/* The editor's table widget: the same rules */
+/* The editor's table widget: the same look */
 .markdown-source-view.mod-cm6 .cm-table-widget table {
   font-family: var(--font-interface);
   font-variant-numeric: tabular-nums;
-  border-top: 1.5px solid var(--wf-regel);
-  border-bottom: 1.5px solid var(--wf-regel);
+  border-top: 2px solid var(--wf-akzent);
+  border-bottom: 2px solid var(--wf-akzent);
 }
 .markdown-source-view.mod-cm6 .cm-table-widget :is(th, td) {
   border-width: 0;
-  border-top: 1px solid var(--wf-linie);
 }
 .markdown-source-view.mod-cm6 .cm-table-widget th {
-  border-top: none;
-  border-bottom: 1px solid var(--wf-regel);
+  background: var(--wf-tint-stark);
 }
-.markdown-source-view.mod-cm6 .cm-table-widget tr:nth-child(2) td {
-  border-top: none;
+.markdown-source-view.mod-cm6 .cm-table-widget tr:nth-child(odd) td {
+  background: var(--wf-zebra);
 }
 
-/* ── Callouts: like a note in a book, between two rules, in the sans face ── */
+/* ── Callouts: a lightly tinted box with an accent edge, title and text in the sans face ── */
 
 .callout {
   --wf-callout: var(--wf-akzent);
-  background: transparent;
+  background: color-mix(in srgb, var(--wf-callout) 8%, var(--background-primary));
   border: none;
-  border-top: 2px solid var(--wf-callout);
-  border-bottom: 1px solid var(--wf-linie);
+  border-left: 4px solid var(--wf-callout);
+  border-radius: 0 4px 4px 0;
   margin: 1.6em 0;
   mix-blend-mode: normal;
 }
@@ -438,9 +485,12 @@
   [data-callout="failure"], [data-callout="fail"], [data-callout="missing"]) {
   --wf-callout: var(--wf-warnung);
 }
+.callout:is([data-callout="tip"], [data-callout="hint"], [data-callout="important"]) {
+  --wf-callout: var(--color-cyan);
+}
 .callout .callout-title {
   padding: 0;
-  gap: 0.4em;
+  gap: 0.45em;
   font-family: var(--font-interface);
   color: var(--wf-callout);
 }
@@ -495,3 +545,16 @@
 .markdown-source-view.mod-cm6 .cm-lineNumbers .cm-active {
   color: var(--wf-leise);
 }
+
+/* ── Numbered sections: cssclasses: nummeriert ── */
+
+.markdown-preview-view.nummeriert .markdown-preview-sizer { counter-reset: wf-h2; }
+.markdown-preview-view.nummeriert h2 { counter-increment: wf-h2; counter-reset: wf-h3; }
+.markdown-preview-view.nummeriert h3 { counter-increment: wf-h3; }
+.markdown-preview-view.nummeriert :is(h2, h3)::before {
+  color: var(--wf-akzent);
+  margin-right: 0.6em;
+  font-variant-numeric: tabular-nums;
+}
+.markdown-preview-view.nummeriert h2::before { content: counter(wf-h2); }
+.markdown-preview-view.nummeriert h3::before { content: counter(wf-h2) "." counter(wf-h3); }
