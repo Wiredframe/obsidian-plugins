@@ -115,14 +115,14 @@
   --checkbox-size: 17px;
   --table-cell-padding: 0.5em 0.9em;
 
-  /* Headings: one scale with a ratio of about 1.2 from H1 down to H3, below that captions in
-     capitals that step down in size, weight and colour. H2 is the coloured bar, H3 sits on a rule. */
+  /* Headings: bold, H2 is the coloured bar, H3 sits on a rule. H4 to H6 are small headings
+     in the accent colour that recede in size and weight. */
   --h1-size: 2em;
-  --h2-size: 1.25em;
-  --h3-size: 1.15em;
-  --h4-size: 0.85em;
-  --h5-size: 0.78em;
-  --h6-size: 0.72em;
+  --h2-size: 1.1em;
+  --h3-size: 1.0em;
+  --h4-size: 0.95em;
+  --h5-size: 0.9em;
+  --h6-size: 0.85em;
   --h1-weight: 700;
   --h2-weight: 600;
   --h3-weight: 700;
@@ -134,9 +134,9 @@
   --h1-color: var(--fa-schwarz);
   --h2-color: var(--fa-rubrik-text);
   --h3-color: var(--fa-schwarz);
-  --h4-color: var(--fa-schwarz);
-  --h5-color: var(--fa-beschriftung);
-  --h6-color: var(--fa-beschriftung);
+  --h4-color: var(--fa-farbe);
+  --h5-color: var(--fa-farbe);
+  --h6-color: var(--fa-farbe);
   --inline-title-size: 2em;
   --inline-title-weight: 700;
   --inline-title-color: var(--fa-schwarz);
@@ -320,12 +320,6 @@
 .markdown-rendered :is(h4, h5, h6) { margin-top: 1.8em; margin-bottom: 0.4em; }
 .markdown-source-view.mod-cm6 :is(.HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) { padding-top: 1.2em; padding-bottom: 0.1em; }
 
-/* H4 to H6: captions in capitals, spaced out so the small size stays legible */
-.markdown-rendered :is(h4, h5, h6),
-.markdown-source-view.mod-cm6 :is(.cm-header-4, .cm-header-5, .cm-header-6):not(.cm-formatting-header) {
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-}
 
 /* ── Entry fields ──────────────────────────────────────────────────── */
 
