@@ -1,39 +1,33 @@
-/* Wiredframe: notes styled like a German tax form (section bars, entry fields, table grids, tick boxes).
-   Only the note itself is styled. All colours come from the default theme: greys from --color-base-*,
-   the accent from the settings (Appearance › Accent color), so light and dark mode follow by themselves.
-   Light mode swaps that palette for the colours of the wiredframe app (wiredframe-weiss), which then
-   reaches the whole window. Fonts come from the settings. Sidebars, tabs and dialogs keep their shapes.
-
-   Extras:
-   - cssclasses: kaestchen   turns inline code into box fields like "T T M M J J J J"
-   - cssclasses: vordruck    numbers every paragraph in the margin in reading view (line 1, 2, 3 …) */
+/* Wiredframe: notes set like a technical book (the interiors of O'Reilly and similar publishers).
+   Serif text from the settings, headings in the sans-serif interface font, so the structure reads
+   from the contrast of two typefaces rather than from large sizes. Headings sit closer to the text
+   they introduce than to the text before them, tables are open with horizontal rules only, notes
+   are set apart by rules above and below. Fonts come from the settings (Appearance › Font).
+   Light mode uses the colours of the wiredframe app (wiredframe-weiss), dark mode keeps the
+   default theme's greys with the bright lime of wiredframe.de as the accent. */
 
 /* ── Colours: references to the default theme's palette only ─────────────
    Deliberately --color-base rather than --background-… and --text-…: those are redefined below for
    the note from these values and would otherwise reference themselves. */
 
 .theme-light, .theme-dark {
-  --fa-feld: var(--color-base-25);          /* entry field */
-  --fa-linie: var(--color-base-40);         /* rules */
-  --fa-kennzahl: color-mix(in srgb, var(--color-base-100) 50%, var(--color-base-70));  /* field numbers, table headers */
-  --fa-beschriftung: var(--color-base-70);  /* small labels */
-  --fa-schwarz: var(--color-base-100);      /* text */
-  --fa-farbe: var(--color-accent);          /* accent colour from the settings */
-  --fa-rubrik: var(--fa-farbe);
-  --fa-rubrik-text: var(--text-on-accent);
-  --fa-auswahl: color-mix(in srgb, var(--color-accent) 25%, var(--color-base-00));  /* text selection */
-  --fa-hover: color-mix(in srgb, var(--color-accent) 8%, var(--color-base-00));     /* hover and focus */
-  --fa-blass: var(--color-base-35);
-  --fa-link: var(--fa-farbe);
-  --fa-akzent: var(--color-orange);         /* strings and values in code */
-  --fa-warnung: var(--color-red);
+  --wf-text: var(--color-base-100);
+  --wf-leise: var(--color-base-70);          /* captions, quotes, labels */
+  --wf-linie: var(--color-base-35);          /* hairlines */
+  --wf-regel: var(--color-base-100);         /* strong rules (tables) */
+  --wf-feld: var(--color-base-10);           /* code, light surfaces */
+  --wf-akzent: var(--color-accent);          /* accent colour from the settings */
+  --wf-auswahl: color-mix(in srgb, var(--color-accent) 25%, var(--color-base-00));
+  --wf-hover: color-mix(in srgb, var(--color-accent) 7%, var(--color-base-00));
+  --wf-warm: var(--color-orange);            /* strings and values in code */
+  --wf-warnung: var(--color-red);
 }
 
 /* ── Light mode: palette of wiredframe-weiss ──────────────────────────
    White ground, greens only where they mean something: a deep green as the accent (#3c7a35) and a
-   muted lime for text selections (#d9ebc8). Petrol (#2f4a51) for text and dark bars (table heads),
-   surfaces and lines neutral with a hint of it (#f2f4f4 sidebars, #d0d6d7 lines). The greys keep the default theme's
-   steps, so every --color-base-* use stays in place. An accent chosen in the settings still wins
+   muted lime for text selections (#d9ebc8). Petrol (#2f4a51) for text, surfaces and lines neutral
+   with a hint of it (#f2f4f4 sidebars, #d0d6d7 lines). The greys keep the default theme's steps,
+   so every --color-base-* use stays in place. An accent chosen in the settings still wins
    (Obsidian sets it inline on body). */
 
 .theme-light {
@@ -46,7 +40,7 @@
   --color-base-05: #fafbfb;
   --color-base-10: #f6f8f8;
   --color-base-20: #f2f4f4;       /* sidebars, tab bar */
-  --color-base-25: #eceff0;       /* entry fields */
+  --color-base-25: #eceff0;
   --color-base-30: #e3e7e8;
   --color-base-35: #d0d6d7;
   --color-base-40: #bcc4c6;
@@ -55,7 +49,7 @@
   --color-base-70: #68797d;
   --color-base-100: #2f4a51;
 
-  --fa-auswahl: #d9ebc8;          /* text selection: the muted lime */
+  --wf-auswahl: #d9ebc8;          /* text selection: the muted lime */
   /* Navigator plugin: the selected file in the accent green, with and without focus */
   --wfn-selection: #3c7a35;
   --wfn-selection-text: #ffffff;
@@ -70,509 +64,434 @@
   --accent-s: 100%;
   --accent-l: 77%;
   --text-on-accent: #193239;      /* petrol, the site's dark ground */
+  --wf-feld: var(--color-base-20);
 }
 
-/* ── Notes only: variables for the sheet ────────────────────────────── */
+/* ── Notes only: the page ───────────────────────────────────────────── */
 
 .workspace-leaf-content[data-type="markdown"] .view-content,
 .markdown-embed,
 .hover-popover {
-  --fa-grund: var(--background-primary);   /* sheet in the default background colour */
-  --background-primary-alt: var(--fa-feld);
-  --background-modifier-border: var(--fa-linie);
-  --background-modifier-hover: var(--fa-hover);
-  --background-modifier-form-field: var(--fa-feld);
+  --background-modifier-border: var(--wf-linie);
+  --background-modifier-hover: var(--wf-hover);
+  --background-modifier-border-hover: var(--wf-akzent);
+  --background-modifier-border-focus: var(--wf-akzent);
 
-  /* Text */
-  --text-normal: var(--fa-schwarz);
-  --text-muted: var(--fa-beschriftung);
-  --text-faint: var(--fa-linie);
-  --text-accent: var(--fa-link);
-  --text-accent-hover: var(--fa-schwarz);
-  --text-selection: color-mix(in srgb, var(--fa-auswahl) 80%, transparent);
-  --text-highlight-bg: var(--fa-feld);
+  --text-normal: var(--wf-text);
+  --text-muted: var(--wf-leise);
+  --text-faint: var(--wf-linie);
+  --text-accent: var(--wf-akzent);
+  --text-accent-hover: var(--wf-text);
+  --text-selection: color-mix(in srgb, var(--wf-auswahl) 80%, transparent);
 
-  /* Form: square corners */
-  --radius-s: 0;
-  --radius-m: 0;
-  --checkbox-radius: 0;
-  --tag-radius: 0;
-  --code-radius: 0;
+  /* Text block: book leading, paragraphs separated by a little less than a blank line */
+  --line-height-normal: 1.6;
+  --p-spacing: 0.95rem;
+  --list-spacing: 0.3em;
+  --list-indent: 1.6em;
+  --file-margins: 40px 48px;
+
+  /* Small radii: soft, but not rounded */
+  --radius-s: 3px;
+  --radius-m: 4px;
+  --checkbox-radius: 3px;
+  --code-radius: 3px;
   --callout-radius: 0;
-  --embed-border-radius: 0;
-  --image-radius: 0;
-  --list-bullet-radius: 0;            /* square bullets */
-  --metadata-property-radius: 0;
-  --metadata-property-radius-hover: 0;
-  --metadata-property-radius-focus: 0;
-  --table-selection-border-radius: 0;
+  --image-radius: 2px;
 
-  /* Spacing like a printed form */
-  --line-height-normal: 1.65;
-  --p-spacing: 1.3rem;
-  --list-spacing: 0.35em;
-  --file-margins: 40px 56px;
-  --checkbox-size: 17px;
-  --table-cell-padding: 0.5em 0.9em;
-
-  /* Headings: bold, H2 is the coloured bar, H3 sits on a rule. H4 to H6 are small headings
-     in the accent colour that recede in size and weight. */
-  --h1-size: 2em;
-  --h2-size: 1.1em;
-  --h3-size: 1.0em;
-  --h4-size: 0.95em;
-  --h5-size: 0.9em;
-  --h6-size: 0.85em;
-  --h1-weight: 700;
-  --h2-weight: 600;
-  --h3-weight: 700;
-  --h4-weight: 700;
-  --h5-weight: 600;
-  --h6-weight: 500;
-  --h1-line-height: 1.15;
-  --h3-line-height: 1.3;
-  --h1-color: var(--fa-schwarz);
-  --h2-color: var(--fa-rubrik-text);
-  --h3-color: var(--fa-schwarz);
-  --h4-color: var(--fa-farbe);
-  --h5-color: var(--fa-farbe);
-  --h6-color: var(--fa-farbe);
-  --inline-title-size: 2em;
+  /* Headings. Sizes stay close to the text (a book's A head is barely larger than its text);
+     the sans-serif face, weight and space carry the hierarchy. H4 to H6 take the accent colour. */
+  --inline-title-font: var(--font-interface);
+  --inline-title-size: 1.9em;
   --inline-title-weight: 700;
-  --inline-title-color: var(--fa-schwarz);
+  --inline-title-line-height: 1.2;
+  --inline-title-color: var(--wf-text);
+  --h1-size: 1.9em;
+  --h2-size: 1.35em;
+  --h3-size: 1.12em;
+  --h4-size: 1em;
+  --h5-size: 0.92em;
+  --h6-size: 0.86em;
+  --h1-weight: 700;
+  --h2-weight: 700;
+  --h3-weight: 700;
+  --h4-weight: 650;
+  --h5-weight: 600;
+  --h6-weight: 600;
+  --h1-line-height: 1.2;
+  --h2-line-height: 1.25;
+  --h3-line-height: 1.3;
+  --h4-line-height: 1.35;
+  --h5-line-height: 1.35;
+  --h6-line-height: 1.35;
+  --h1-color: var(--wf-text);
+  --h2-color: var(--wf-text);
+  --h3-color: var(--wf-text);
+  --h4-color: var(--wf-akzent);
+  --h5-color: var(--wf-akzent);
+  --h6-color: var(--wf-akzent);
 
-  /* Content */
-  --link-color: var(--fa-link);
-  --link-color-hover: var(--fa-schwarz);
-  --link-external-color: var(--fa-link);
-  --link-external-color-hover: var(--fa-schwarz);
-  --link-unresolved-color: var(--fa-beschriftung);
-  --link-unresolved-opacity: 0.8;
-  --link-unresolved-decoration-color: var(--fa-linie);
-  --tag-color: var(--fa-kennzahl);
-  --tag-color-hover: var(--fa-schwarz);
-  --tag-background: var(--fa-feld);
-  --tag-background-hover: var(--fa-hover);
-  --tag-border-color: var(--fa-linie);
-  --tag-border-color-hover: var(--fa-farbe);
-  --tag-border-width: 2px;
-  --tag-weight: 400;
-  --tag-padding-x: 0.4em;
-  --tag-padding-y: 0.05em;
-  --code-background: var(--fa-feld);
-  --code-normal: var(--fa-schwarz);
-  --code-size: 0.9em;
-  /* Restrained syntax colours: greys, the accent for functions, a warm tone for strings */
-  --code-comment: var(--fa-beschriftung);
-  --code-function: var(--fa-link);
-  --code-keyword: var(--fa-schwarz);
-  --code-important: var(--fa-akzent);
-  --code-operator: var(--fa-beschriftung);
-  --code-property: var(--fa-link);
-  --code-punctuation: var(--fa-beschriftung);
-  --code-string: var(--fa-akzent);
-  --code-tag: var(--fa-link);
-  --code-value: var(--fa-akzent);
-  --blockquote-border-color: var(--fa-linie);
-  --blockquote-border-thickness: 3px;
+  /* Links: accent colour with a fine underline */
+  --link-color: var(--wf-akzent);
+  --link-color-hover: var(--wf-text);
+  --link-external-color: var(--wf-akzent);
+  --link-external-color-hover: var(--wf-text);
+  --link-decoration-thickness: 1px;
+  --link-unresolved-color: var(--wf-leise);
+  --link-unresolved-opacity: 1;
+  --link-unresolved-decoration-style: dotted;
+  --link-unresolved-decoration-color: var(--wf-leise);
+
+  /* Tags: small sans label on a hint of accent */
+  --tag-color: var(--wf-akzent);
+  --tag-color-hover: var(--wf-text);
+  --tag-background: color-mix(in srgb, var(--wf-akzent) 9%, transparent);
+  --tag-background-hover: color-mix(in srgb, var(--wf-akzent) 16%, transparent);
+  --tag-border-width: 0;
+  --tag-radius: 3px;
+  --tag-size: 0.82em;
+  --tag-weight: 500;
+  --tag-padding-x: 0.45em;
+  --tag-padding-y: 0.1em;
+
+  /* Code: quiet surface, restrained syntax colours */
+  --code-background: var(--wf-feld);
+  --code-normal: var(--wf-text);
+  --code-size: 0.86em;
+  --code-comment: var(--wf-leise);
+  --code-function: var(--wf-akzent);
+  --code-keyword: var(--wf-text);
+  --code-important: var(--wf-warm);
+  --code-operator: var(--wf-leise);
+  --code-property: var(--wf-akzent);
+  --code-punctuation: var(--wf-leise);
+  --code-string: var(--wf-warm);
+  --code-tag: var(--wf-akzent);
+  --code-value: var(--wf-warm);
+
+  /* Quotes, rules, lists, tasks */
+  --blockquote-border-color: var(--wf-linie);
+  --blockquote-border-thickness: 2px;
   --blockquote-font-style: normal;
-  --blockquote-color: var(--fa-schwarz);
-  --hr-color: var(--fa-linie);
-  --hr-thickness: 2px;
-  --list-marker-color: var(--fa-farbe);
-  --list-marker-color-hover: var(--fa-schwarz);
-  --checkbox-color: var(--fa-rubrik);
-  --checkbox-color-hover: var(--fa-rubrik);
-  --checkbox-border-color: var(--fa-linie);
-  --checkbox-border-color-hover: var(--fa-farbe);
-  --checklist-done-color: var(--fa-beschriftung);
-  --table-border-color: var(--fa-linie);
-  --table-border-width: 1px;
+  --blockquote-color: var(--wf-leise);
+  --hr-color: var(--wf-linie);
+  --hr-thickness: 1px;
+  --list-marker-color: var(--wf-akzent);
+  --list-marker-color-hover: var(--wf-text);
+  --checkbox-size: 16px;
+  --checkbox-color: var(--wf-akzent);
+  --checkbox-color-hover: var(--wf-akzent);
+  --checkbox-border-color: var(--wf-leise);
+  --checkbox-border-color-hover: var(--wf-akzent);
+  --checkbox-marker-color: var(--text-on-accent);
+  --checklist-done-color: var(--wf-leise);
+
+  /* Tables: open, rules only */
+  --table-border-width: 0;
+  --table-border-color: var(--wf-linie);
   --table-header-background: transparent;
-  --table-header-color: var(--color-base-00);
-  --table-header-weight: 400;
-  --table-header-size: var(--table-text-size);
-  --table-background: var(--fa-feld);
-  --table-row-background-hover: var(--fa-hover);
-  --table-row-alt-background: var(--fa-feld);
+  --table-header-background-hover: transparent;
+  --table-header-color: var(--wf-text);
+  --table-header-weight: 650;
+  --table-header-size: 0.86em;
+  --table-text-size: 0.92em;
+  --table-background: transparent;
+  --table-row-background-hover: var(--wf-hover);
+  --table-row-alt-background: transparent;
   --table-column-alt-background: transparent;
-  --metadata-label-text-color: var(--fa-beschriftung);
-  --metadata-label-font-size: 0.75em;
-  --metadata-input-background: var(--fa-feld);
-  --metadata-input-background-hover: var(--fa-hover);
-  --metadata-input-background-active: var(--fa-hover);
-  --metadata-property-background-hover: var(--fa-hover);
-  --metadata-property-background-active: var(--fa-hover);
-  --background-modifier-active-hover: var(--fa-hover);
-  --background-modifier-border-hover: var(--fa-farbe);
-  --background-modifier-border-focus: var(--fa-farbe);
-  --table-selection: color-mix(in srgb, var(--fa-auswahl) 60%, transparent);
-  --table-selection-border-color: var(--fa-farbe);
-  --table-drag-handle-background-active: var(--fa-farbe);
-  --table-drag-handle-color-active: var(--fa-rubrik-text);
-  --table-add-button-background: var(--fa-hover);
-  --metadata-border-color: var(--fa-linie);
+  --table-cell-padding: 0.45em 0.8em;
+  --table-selection: color-mix(in srgb, var(--wf-auswahl) 60%, transparent);
+  --table-selection-border-color: var(--wf-akzent);
+  --table-drag-handle-background-active: var(--wf-akzent);
+  --table-drag-handle-color-active: var(--text-on-accent);
 
-  --callout-border-width: 2px;
+  /* Callouts: set apart by rules, no box */
+  --callout-border-width: 0;
   --callout-border-opacity: 1;
-  --callout-title-weight: 600;
+  --callout-padding: 0.75em 0;
+  --callout-title-weight: 650;
+  --callout-title-size: 0.86em;
+  --callout-content-padding: 0;
 
-  color: var(--fa-schwarz);
+  /* Properties */
+  --metadata-label-text-color: var(--wf-leise);
+  --metadata-label-font-size: 0.8em;
+  --metadata-input-font-size: 0.86em;
+  --metadata-border-color: var(--wf-linie);
+  --metadata-property-background-hover: var(--wf-hover);
+  --metadata-input-background-active: var(--wf-hover);
+
+  color: var(--wf-text);
 }
 
-/* ── Headings ──────────────────────────────────────────────────────── */
+/* ── Headings ──────────────────────────────────────────────────────────
+   All in the interface font, tightly set. Space above is larger than below: a heading belongs to
+   the text after it. */
 
 .inline-title,
-.markdown-rendered h1,
-.markdown-source-view.mod-cm6 .HyperMD-header-1 {
-  letter-spacing: -0.015em;
+.markdown-rendered :is(h1, h2, h3, h4, h5, h6),
+.markdown-source-view.mod-cm6 :is(.HyperMD-header, .cm-header) {
+  font-family: var(--font-interface);
 }
-.markdown-rendered h3,
-.markdown-source-view.mod-cm6 .cm-header-3 {
-  letter-spacing: -0.005em;
-}
-/* Headings break into lines of even length instead of leaving one word on the last */
 .inline-title,
 .markdown-rendered :is(h1, h2, h3, h4, h5, h6) {
   text-wrap: balance;
+  hyphens: none;
 }
-/* Loose lists (an empty line between items) wrap each item in a paragraph: keep the items as close
-   as in a tight list, so a list never reads like a row of separate paragraphs */
-.markdown-rendered li > p {
-  margin-block: 0.3em;
+.inline-title,
+.markdown-rendered h1,
+.markdown-source-view.mod-cm6 .cm-header-1 {
+  letter-spacing: -0.022em;
 }
-/* Paragraphs avoid a single word on their last line */
+.markdown-rendered :is(h2, h3),
+.markdown-source-view.mod-cm6 :is(.cm-header-2, .cm-header-3) {
+  letter-spacing: -0.012em;
+}
+
+.inline-title { margin-bottom: 0.6em; }
+.markdown-rendered h1 { margin-top: 1.6em; margin-bottom: 0.6em; }
+.markdown-source-view.mod-cm6 .HyperMD-header-1 { padding-top: 1em; padding-bottom: 0.2em; }
+
+/* H2 opens a section: a hairline above it across the full width, like a new section in a book */
+.markdown-rendered h2 {
+  margin-top: 2.2em;
+  margin-bottom: 0.55em;
+  padding-top: 0.6em;
+  border-top: 1px solid var(--wf-linie);
+}
+.markdown-source-view.mod-cm6 .HyperMD-header-2 {
+  padding-top: 0.6em !important;
+  padding-bottom: 0.15em !important;
+  border-top: 1px solid var(--wf-linie);
+}
+/* CodeMirror miscounts heights when lines carry margins, so the room above the rule goes on the
+   line before it. Same shape as Obsidian's own rule for the line after a heading, one class stronger. */
+.markdown-source-view.mod-cm6 .cm-line:not(.HyperMD-header-2):has(+ .cm-line.HyperMD-header-2) {
+  padding-bottom: 1.6em;
+}
+
+.markdown-rendered h3 { margin-top: 1.8em; margin-bottom: 0.4em; }
+.markdown-source-view.mod-cm6 .HyperMD-header-3 { padding-top: 1.1em !important; padding-bottom: 0.1em !important; }
+
+.markdown-rendered :is(h4, h5, h6) { margin-top: 1.5em; margin-bottom: 0.3em; }
+.markdown-source-view.mod-cm6 :is(.HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) {
+  padding-top: 0.8em !important;
+  padding-bottom: 0.05em !important;
+}
+
+/* The # markers in the editor stay small and quiet */
+.markdown-source-view.mod-cm6 .cm-formatting-header {
+  color: var(--wf-linie);
+  font-weight: 400;
+}
+
+/* A heading at the very top of a note needs neither space nor rule above it */
+.markdown-rendered .markdown-preview-sizer > div:is(.el-h1, .el-h2, .el-h3, .el-h4, .el-h5, .el-h6):nth-child(1 of :not(.mod-header, .mod-frontmatter, .markdown-preview-pusher)) > :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* ── Running text ───────────────────────────────────────────────────── */
+
 .markdown-rendered :is(p, li) {
   text-wrap: pretty;
 }
-/* A heading at the very top of a note needs no room above it */
-.markdown-rendered .markdown-preview-sizer > div:is(.el-h2, .el-h3, .el-h4, .el-h5, .el-h6):nth-child(1 of :not(.mod-header, .mod-frontmatter, .markdown-preview-pusher)) > :is(h2, h3, h4, h5, h6) {
-  margin-top: 0;
+/* Loose lists (blank line between items) wrap each item in a paragraph: keep the items as close as
+   in a tight list */
+.markdown-rendered li > p {
+  margin-block: 0.25em;
 }
-
-/* H2 as a section bar: coloured bar with light text on a rule across the full width,
-   with the same line height and padding as a table header row */
-.markdown-rendered h2 {
-  display: flex;
-  align-items: stretch;
-  background: var(--fa-rubrik);
-  color: var(--fa-rubrik-text);
-  border-bottom: 2px solid var(--fa-rubrik);
-  padding: 0.22em 0 0.22em 0.65em;
-  margin-top: 1.9em;
-  margin-bottom: 1.1em;
-  line-height: 1.25;
+.markdown-rendered :is(ul, ol) ul,
+.markdown-rendered :is(ul, ol) ol {
+  margin-block: 0.15em;
 }
-.markdown-rendered h2::after {
-  content: "";
-  flex: 1;
-  margin-left: 0.65em;
-  margin-top: -0.22em;
-  margin-bottom: -0.22em;
-  background: var(--background-primary);
-}
-.markdown-source-view.mod-cm6 .HyperMD-header-2 {
-  border-bottom: 2px solid var(--fa-rubrik);
-  padding-top: 1.4em;
-  padding-bottom: 0 !important;
-  line-height: 1.25;
-}
-/* Room below the bar goes on the next line: the rule sits at the bottom of the heading line, and
-   CodeMirror miscounts line heights when lines carry margins */
-/* Same shape as Obsidian's own rule for the line after a heading (empty lines excluded), one class stronger */
-.markdown-source-view.mod-cm6 .cm-line.HyperMD-header-2 + .cm-line:not(.HyperMD-header):not(:has(> br:only-child)) {
-  padding-top: 0.9em;
-}
-/* The bar is an inline block sitting on the bottom of the line box, so it ends exactly on the rule
-   whatever the font's ascent and descent are. An inline span's background would follow the font
-   metrics and overshoot or stop short of the rule. */
-.markdown-source-view.mod-cm6 .cm-header-2 {
-  display: inline-block;
-  vertical-align: bottom;
-  line-height: 1.25;
-  background: var(--fa-rubrik);
-  color: var(--fa-rubrik-text);
-  padding: 0.22em 0.65em;
-}
-.markdown-source-view.mod-cm6 .HyperMD-header-2 .cm-formatting-header {
-  background: transparent;
-  color: var(--fa-beschriftung);
-  padding: 0;
-}
-
-.markdown-rendered h1 { margin-bottom: 0.8em; }
-.markdown-source-view.mod-cm6 .HyperMD-header-1 { padding-bottom: 0.4em; }
-/* H3 on a thin rule across the full width: a subsection of the form, clearly apart from bold text */
-.markdown-rendered h3 {
-  margin-top: 1.9em;
-  margin-bottom: 0.8em;
-  padding-bottom: 0.3em;
-  border-bottom: 1px solid var(--fa-linie);
-}
-.markdown-source-view.mod-cm6 .HyperMD-header-3 {
-  padding-top: 1.1em;
-  padding-bottom: 0.3em !important;
-  border-bottom: 1px solid var(--fa-linie);
-}
-.markdown-source-view.mod-cm6 .cm-line.HyperMD-header-3 + .cm-line:not(.HyperMD-header):not(:has(> br:only-child)) {
-  padding-top: 0.6em;
-}
-.markdown-rendered :is(h4, h5, h6) { margin-top: 1.8em; margin-bottom: 0.4em; }
-.markdown-source-view.mod-cm6 :is(.HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) { padding-top: 1.2em; padding-bottom: 0.1em; }
-
-
-/* ── Entry fields ──────────────────────────────────────────────────── */
-
-.markdown-rendered code:not(pre code),
-.markdown-source-view.mod-cm6 .cm-inline-code:not(.cm-formatting) {
-  background: var(--fa-feld);
-  box-shadow: inset 0 0 0 1px var(--fa-blass);
-  padding: 0.2em 0.45em;
-  margin: 0 0.1em;
-}
-.markdown-rendered mark,
-.markdown-source-view.mod-cm6 .cm-highlight {
-  background: var(--fa-feld);
-  color: var(--fa-schwarz);
-  box-shadow: inset 0 -2px 0 var(--fa-farbe);
-  padding: 0.15em 0.4em;
-  margin: 0 0.1em;
-}
-
-.markdown-rendered pre,
-.markdown-source-view.mod-cm6 .HyperMD-codeblock {
-  background: var(--fa-feld);
-}
-.markdown-rendered pre {
-  border: 1px solid var(--fa-linie);
-  padding: 1em 1.2em;
-}
-
-.markdown-rendered .tag,
-.markdown-source-view .cm-hashtag {
-  border-style: solid;
-}
-/* In the editor a tag is split into "#" and name: no inner edge, otherwise you get two boxes */
-.markdown-source-view .cm-hashtag-begin {
-  border-right-style: none;
-  padding-right: 0;
-}
-.markdown-source-view .cm-hashtag-end {
-  border-left-style: none;
-  padding-left: 0;
-}
-a.tag, .markdown-source-view.mod-cm6 .cm-hashtag {
+.markdown-rendered ol > li::marker {
+  color: var(--wf-akzent);
+  font-family: var(--font-interface);
+  font-size: 0.9em;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-
-/* Checkboxes as tick boxes */
-.markdown-rendered input[type="checkbox"],
-.markdown-source-view input[type="checkbox"] {
-  border-width: 1.5px;
-}
-.markdown-rendered input[type="checkbox"]:not(:checked),
-.markdown-source-view input[type="checkbox"]:not(:checked) {
-  background-color: var(--fa-feld);
-}
-/* Checked: filled with the accent colour and a white tick */
-.markdown-rendered input[type="checkbox"]:checked,
-.markdown-source-view input[type="checkbox"]:checked {
-  background-color: var(--fa-rubrik);
-  border-color: var(--fa-rubrik);
-}
-.markdown-rendered input[type="checkbox"]:checked::after,
-.markdown-source-view input[type="checkbox"]:checked::after {
-  background-color: var(--fa-rubrik-text);
-}
-.markdown-rendered .task-list-item-checkbox,
-.markdown-source-view.mod-cm6 .task-list-item-checkbox {
-  margin-inline-end: 0.7em;
-}
-.markdown-rendered li.task-list-item + li.task-list-item {
-  margin-top: 0.35em;
-}
-.markdown-source-view.mod-cm6 .HyperMD-task-line {
-  padding-block: 0.15em;
+.markdown-rendered sup.footnote-ref a {
+  color: var(--wf-akzent);
+  font-family: var(--font-interface);
+  font-weight: 600;
 }
 
-/* Tables: light fields in a grid, column headers as a dark bar in the text colour (petrol in light mode) */
-.markdown-rendered table {
-  border-collapse: separate;
-  border-spacing: 4px;
-  background: transparent;
-  margin-block: 1.2em;
+.markdown-rendered a,
+.markdown-rendered .internal-link,
+.markdown-rendered .external-link,
+.markdown-source-view.mod-cm6 :is(.cm-hmd-internal-link, .cm-link, .cm-url) {
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
 }
-.markdown-rendered :is(td, th),
-.markdown-source-view.mod-cm6 .cm-table-widget :is(td, th) {
+.markdown-rendered a:hover {
+  text-decoration-color: currentColor;
+}
+
+.markdown-rendered strong,
+.markdown-source-view.mod-cm6 .cm-strong {
+  font-weight: 700;
+}
+
+/* Highlight: a marker stroke rather than a box */
+.markdown-rendered mark,
+.markdown-source-view.mod-cm6 .cm-highlight {
+  background: color-mix(in srgb, var(--wf-auswahl) 85%, transparent);
+  color: inherit;
+  padding: 0.05em 0.15em;
+  border-radius: 2px;
+}
+
+/* Section break: a short centred rule instead of a line across the page */
+.markdown-rendered hr,
+.markdown-source-view.mod-cm6 hr {
+  width: 30%;
+  margin: 2.2em auto;
   border: none;
-}
-.markdown-preview-view :is(td, th),
-.markdown-source-view.mod-cm6 .cm-table-widget .table-cell-wrapper {
-  padding: var(--table-cell-padding);
-}
-.markdown-rendered td,
-.markdown-source-view.mod-cm6 .cm-table-widget td {
-  font-variant-numeric: tabular-nums;   /* amounts line up in a column */
-  background: var(--fa-feld);
-  box-shadow: inset 0 -1px 0 var(--fa-linie);
-}
-.markdown-rendered th,
-.markdown-source-view.mod-cm6 .cm-table-widget th {
-  text-transform: none;
-  background: var(--fa-schwarz);
-  color: var(--color-base-00);
+  border-top: 1px solid var(--wf-linie);
 }
 
+/* Quote: indented and set a little quieter, with a fine rule */
 .markdown-rendered blockquote {
+  margin: 1.4em 0 1.4em 0.2em;
+  padding: 0.1em 0 0.1em 1.2em;
   background: transparent;
-  font-size: 0.92em;
-  padding: 0.35em 0 0.35em 1.2em;
-  margin-block: 1.4em;
-}
-.markdown-source-view.mod-cm6 .HyperMD-quote {
-  font-size: 0.92em;
-  padding-block: 0.2em;
 }
 .markdown-source-view.mod-cm6 .HyperMD-quote::before {
   margin-inline-end: 0.9em;
 }
 
-/* Callout as a margin note: light field, a strong rule on the left, the title as a small
-   label in neutral grey. Icon and rule take the accent colour chosen in Obsidian, the rule turns
-   red for warnings. */
-.callout {
-  --fa-callout: var(--fa-farbe);
-  background: var(--fa-feld);
+/* ── Code ───────────────────────────────────────────────────────────── */
+
+.markdown-rendered code:not(pre code),
+.markdown-source-view.mod-cm6 .cm-inline-code:not(.cm-formatting) {
+  padding: 0.12em 0.32em;
+  border-radius: 3px;
+}
+.markdown-rendered pre {
   border: none;
-  border-left: 4px solid var(--fa-callout);
-  padding: 0.8em 1.1em 0.9em;
-  margin-block: 1.6em;
+  border-left: 2px solid var(--wf-linie);
+  padding: 0.9em 1.2em;
+  margin-block: 1.3em;
+  line-height: 1.5;
+}
+
+/* ── Tables: open, with a strong rule above and below and a hairline under the head ── */
+
+.markdown-rendered table {
+  border-collapse: collapse;
+  margin-block: 1.4em;
+  border-top: 1.5px solid var(--wf-regel);
+  border-bottom: 1.5px solid var(--wf-regel);
+  font-family: var(--font-interface);
+  font-variant-numeric: tabular-nums;
+}
+.markdown-rendered :is(th, td) {
+  border: none;
+  padding: var(--table-cell-padding);
+}
+.markdown-rendered th {
+  border-bottom: 1px solid var(--wf-regel);
+  text-align: start;
+  vertical-align: bottom;
+}
+.markdown-rendered tr + tr td {
+  border-top: 1px solid var(--wf-linie);
+}
+.markdown-rendered :is(th, td):first-child { padding-inline-start: 0.2em; }
+.markdown-rendered :is(th, td):last-child { padding-inline-end: 0.2em; }
+
+/* The editor's table widget: the same rules */
+.markdown-source-view.mod-cm6 .cm-table-widget table {
+  font-family: var(--font-interface);
+  font-variant-numeric: tabular-nums;
+  border-top: 1.5px solid var(--wf-regel);
+  border-bottom: 1.5px solid var(--wf-regel);
+}
+.markdown-source-view.mod-cm6 .cm-table-widget :is(th, td) {
+  border-width: 0;
+  border-top: 1px solid var(--wf-linie);
+}
+.markdown-source-view.mod-cm6 .cm-table-widget th {
+  border-top: none;
+  border-bottom: 1px solid var(--wf-regel);
+}
+.markdown-source-view.mod-cm6 .cm-table-widget tr:nth-child(2) td {
+  border-top: none;
+}
+
+/* ── Callouts: like a note in a book, between two rules, in the sans face ── */
+
+.callout {
+  --wf-callout: var(--wf-akzent);
+  background: transparent;
+  border: none;
+  border-top: 2px solid var(--wf-callout);
+  border-bottom: 1px solid var(--wf-linie);
+  margin: 1.6em 0;
   mix-blend-mode: normal;
 }
 .callout:is([data-callout="warning"], [data-callout="caution"], [data-callout="attention"],
   [data-callout="danger"], [data-callout="error"], [data-callout="bug"],
   [data-callout="failure"], [data-callout="fail"], [data-callout="missing"]) {
-  --fa-callout: var(--fa-warnung);
+  --wf-callout: var(--wf-warnung);
 }
 .callout .callout-title {
-  background: none;
   padding: 0;
-  gap: 0.45em;
-  font-size: 0.9em;
-  font-weight: 600;
+  gap: 0.4em;
+  font-family: var(--font-interface);
+  color: var(--wf-callout);
 }
-.callout .callout-title :is(.callout-icon, .callout-icon .svg-icon) { color: var(--fa-farbe); }
-.callout .callout-title .callout-fold { color: var(--fa-kennzahl); }
-.callout .callout-title .callout-icon svg { width: 1.15em; height: 1.15em; }
-.callout .callout-title .callout-title-inner { color: var(--fa-kennzahl); }
+.callout .callout-title :is(.callout-icon, .callout-icon .svg-icon) { color: var(--wf-callout); }
+.callout .callout-title .callout-icon svg { width: 1.05em; height: 1.05em; }
+.callout .callout-title .callout-fold { color: var(--wf-leise); }
 .callout-content {
-  padding: 0;
-  margin-top: 0.5em;
+  margin-top: 0.4em;
+  font-family: var(--font-interface);
+  font-size: 0.92em;
+  line-height: 1.55;
 }
 .callout-content > :first-child { margin-top: 0; }
 .callout-content > :last-child { margin-bottom: 0; }
 
-.markdown-rendered sup.footnote-ref a,
-.markdown-rendered ol > li::marker {
-  color: var(--fa-farbe);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+/* ── Tasks ──────────────────────────────────────────────────────────── */
+
+.markdown-rendered .task-list-item-checkbox,
+.markdown-source-view.mod-cm6 .task-list-item-checkbox {
+  margin-inline-end: 0.6em;
+}
+.markdown-rendered input[type="checkbox"],
+.markdown-source-view input[type="checkbox"] {
+  border-width: 1.5px;
 }
 
-/* ── Properties (frontmatter): small label, value in a light field ── */
+/* ── Properties (frontmatter): compact, in the sans face ── */
 
 .markdown-source-view .metadata-container,
 .markdown-preview-view .metadata-container {
-  border-top: 2px solid var(--fa-linie);
-  border-bottom: 2px solid var(--fa-linie);
-  padding: 0.6em 0;
-  margin-bottom: 2em;
+  font-family: var(--font-interface);
+  border-bottom: 1px solid var(--wf-linie);
+  padding-bottom: 0.6em;
+  margin-bottom: 1.8em;
 }
 .metadata-container .metadata-property {
-  padding: 4px 0;
-}
-.metadata-container .metadata-property-value {
-  background: var(--fa-feld);
-  box-shadow: inset 0 -1px 0 var(--fa-blass);
+  padding: 2px 0;
 }
 
-/* ── Line numbers in the editor like a form margin ── */
+/* ── Line numbers in the editor: small and quiet ── */
 
 .markdown-source-view.mod-cm6 .cm-gutters {
   background: transparent;
 }
 .markdown-source-view.mod-cm6 .cm-lineNumbers .cm-gutterElement {
-  color: var(--fa-beschriftung);
+  color: var(--wf-linie);
   font-family: var(--font-interface);
-  font-size: 0.6em;
-  font-weight: 400;
+  font-size: 0.7em;
   font-variant-numeric: tabular-nums;
-  padding-top: 0.45em;
+  padding-top: 0.35em;
 }
 .markdown-source-view.mod-cm6 .cm-lineNumbers .cm-active {
-  color: var(--fa-schwarz);
-}
-
-/* ── Reading view with line numbers: cssclasses: vordruck ── */
-
-.markdown-preview-view.vordruck .markdown-preview-sizer {
-  counter-reset: zeile;
-}
-.markdown-preview-view.vordruck .markdown-preview-sizer > div:not(.mod-frontmatter, .mod-header):is(:has(> p), :has(> ul), :has(> ol), :has(> table), :has(> blockquote), :has(> pre)) {
-  position: relative;
-  counter-increment: zeile;
-}
-.markdown-preview-view.vordruck .markdown-preview-sizer > div:not(.mod-frontmatter, .mod-header):is(:has(> p), :has(> ul), :has(> ol), :has(> table), :has(> blockquote), :has(> pre))::before {
-  content: counter(zeile);
-  position: absolute;
-  left: -2.6em;
-  width: 2em;
-  top: 0.15em;
-  text-align: right;
-  font-size: 0.6em;
-  font-weight: 400;
-  line-height: 2.6;
-  color: var(--fa-beschriftung);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ── Boxes: cssclasses: kaestchen ── */
-
-.kaestchen code:not(pre code),
-.kaestchen.markdown-source-view.mod-cm6 .cm-inline-code:not(.cm-formatting) {
-  --ls: 0.75ch;
-  --zelle: calc(1ch + var(--ls));
-  font-family: var(--font-monospace);
-  letter-spacing: var(--ls);
-  padding: 0.2em 0 0.2em calc(var(--ls) / 2);
-  margin-right: calc(var(--ls) / -2);
-  margin-left: 0.1em;
-  clip-path: inset(0 calc(var(--ls) / 2) 0 0);
-  box-shadow: none;
-  background:
-    repeating-linear-gradient(90deg,
-      var(--fa-feld) 0 calc(var(--zelle) - 2px),
-      var(--fa-grund) calc(var(--zelle) - 2px) var(--zelle));
-}
-
-/* ── Hover and focus: the same hint of accent colour everywhere ── */
-
-.markdown-rendered td:hover,
-.markdown-source-view.mod-cm6 .cm-table-widget td:hover,
-.markdown-source-view.mod-cm6 .cm-table-widget td:focus-within {
-  background: var(--fa-hover);
-}
-.markdown-source-view.mod-cm6 .cm-table-widget td:focus-within {
-  box-shadow: inset 0 -2px 0 var(--fa-farbe);
-}
-.markdown-rendered input[type="checkbox"]:not(:checked):hover,
-.markdown-source-view input[type="checkbox"]:not(:checked):hover {
-  background-color: var(--fa-hover);
-}
-.metadata-container .metadata-property-value:hover,
-.metadata-container .metadata-property-value:focus-within {
-  background: var(--fa-hover);
-}
-.metadata-container .metadata-property-value:focus-within {
-  box-shadow: inset 0 -2px 0 var(--fa-farbe);
+  color: var(--wf-leise);
 }
