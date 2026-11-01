@@ -52,11 +52,6 @@
   --color-base-100: #2f4a51;
 
   --wf-auswahl: #d9ebc8;          /* text selection: the muted lime */
-  /* Navigator plugin: the selected file in the accent green, with and without focus */
-  --wfn-selection: #3c7a35;
-  --wfn-selection-text: #ffffff;
-  --wfn-selection-focus: #3c7a35;
-  --wfn-selection-focus-text: #ffffff;
 }
 
 /* ── Dark mode: default colours, the bright lime of wiredframe.de as the accent ── */
