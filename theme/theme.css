@@ -115,28 +115,30 @@
   --checkbox-size: 17px;
   --table-cell-padding: 0.5em 0.9em;
 
-  /* Headings: regular weight like everything else, only bold set in the note (**…**) and the title (H1) are bold */
+  /* Headings: one scale with a ratio of about 1.2 from H1 down to H3, below that captions in
+     capitals that step down in size, weight and colour. H2 is the coloured bar, H3 sits on a rule. */
   --h1-size: 2em;
-  --h2-size: 1.0em;
-  --h3-size: 1.05em;
-  --h4-size: 0.8em;
-  --h5-size: 0.75em;
-  --h6-size: 0.7em;
-  --h1-weight: 600;
-  --h2-weight: 400;
-  --h3-weight: 400;
-  --h4-weight: 400;
-  --h5-weight: 400;
-  --h6-weight: 400;
+  --h2-size: 1.25em;
+  --h3-size: 1.15em;
+  --h4-size: 0.85em;
+  --h5-size: 0.78em;
+  --h6-size: 0.72em;
+  --h1-weight: 700;
+  --h2-weight: 600;
+  --h3-weight: 700;
+  --h4-weight: 700;
+  --h5-weight: 600;
+  --h6-weight: 500;
   --h1-line-height: 1.15;
+  --h3-line-height: 1.3;
   --h1-color: var(--fa-schwarz);
   --h2-color: var(--fa-rubrik-text);
   --h3-color: var(--fa-schwarz);
-  --h4-color: var(--fa-beschriftung);
+  --h4-color: var(--fa-schwarz);
   --h5-color: var(--fa-beschriftung);
   --h6-color: var(--fa-beschriftung);
   --inline-title-size: 2em;
-  --inline-title-weight: 600;
+  --inline-title-weight: 700;
   --inline-title-color: var(--fa-schwarz);
 
   /* Content */
@@ -213,7 +215,7 @@
 
   --callout-border-width: 2px;
   --callout-border-opacity: 1;
-  --callout-title-weight: 400;
+  --callout-title-weight: 600;
 
   color: var(--fa-schwarz);
 }
@@ -223,7 +225,29 @@
 .inline-title,
 .markdown-rendered h1,
 .markdown-source-view.mod-cm6 .HyperMD-header-1 {
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+}
+.markdown-rendered h3,
+.markdown-source-view.mod-cm6 .cm-header-3 {
+  letter-spacing: -0.005em;
+}
+/* Headings break into lines of even length instead of leaving one word on the last */
+.inline-title,
+.markdown-rendered :is(h1, h2, h3, h4, h5, h6) {
+  text-wrap: balance;
+}
+/* Loose lists (an empty line between items) wrap each item in a paragraph: keep the items as close
+   as in a tight list, so a list never reads like a row of separate paragraphs */
+.markdown-rendered li > p {
+  margin-block: 0.3em;
+}
+/* Paragraphs avoid a single word on their last line */
+.markdown-rendered :is(p, li) {
+  text-wrap: pretty;
+}
+/* A heading at the very top of a note needs no room above it */
+.markdown-rendered .markdown-preview-sizer > div:is(.el-h2, .el-h3, .el-h4, .el-h5, .el-h6):nth-child(1 of :not(.mod-header, .mod-frontmatter, .markdown-preview-pusher)) > :is(h2, h3, h4, h5, h6) {
+  margin-top: 0;
 }
 
 /* H2 as a section bar: coloured bar with light text on a rule across the full width,
@@ -234,24 +258,24 @@
   background: var(--fa-rubrik);
   color: var(--fa-rubrik-text);
   border-bottom: 2px solid var(--fa-rubrik);
-  padding: 0.5em 0 0.5em 0.9em;
-  margin-top: 2.6em;
-  margin-bottom: 1.5em;
-  line-height: 1.3;
+  padding: 0.22em 0 0.22em 0.65em;
+  margin-top: 1.9em;
+  margin-bottom: 1.1em;
+  line-height: 1.25;
 }
 .markdown-rendered h2::after {
   content: "";
   flex: 1;
-  margin-left: 0.9em;
-  margin-top: -0.5em;
-  margin-bottom: -0.5em;
+  margin-left: 0.65em;
+  margin-top: -0.22em;
+  margin-bottom: -0.22em;
   background: var(--background-primary);
 }
 .markdown-source-view.mod-cm6 .HyperMD-header-2 {
   border-bottom: 2px solid var(--fa-rubrik);
-  padding-top: 2em;
+  padding-top: 1.4em;
   padding-bottom: 0 !important;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 /* Room below the bar goes on the next line: the rule sits at the bottom of the heading line, and
    CodeMirror miscounts line heights when lines carry margins */
@@ -265,10 +289,10 @@
 .markdown-source-view.mod-cm6 .cm-header-2 {
   display: inline-block;
   vertical-align: bottom;
-  line-height: 1.3;
+  line-height: 1.25;
   background: var(--fa-rubrik);
   color: var(--fa-rubrik-text);
-  padding: 0.5em 0.9em;
+  padding: 0.22em 0.65em;
 }
 .markdown-source-view.mod-cm6 .HyperMD-header-2 .cm-formatting-header {
   background: transparent;
@@ -278,14 +302,29 @@
 
 .markdown-rendered h1 { margin-bottom: 0.8em; }
 .markdown-source-view.mod-cm6 .HyperMD-header-1 { padding-bottom: 0.4em; }
-.markdown-rendered h3 { margin-top: 1.9em; margin-bottom: 1em; }
-.markdown-source-view.mod-cm6 .HyperMD-header-3 { padding-top: 1.1em; padding-bottom: 0.5em; }
-.markdown-rendered :is(h4, h5, h6) { margin-top: 1.4em; margin-bottom: 0.6em; }
-.markdown-source-view.mod-cm6 :is(.HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) { padding-top: 0.8em; padding-bottom: 0.3em; }
+/* H3 on a thin rule across the full width: a subsection of the form, clearly apart from bold text */
+.markdown-rendered h3 {
+  margin-top: 1.9em;
+  margin-bottom: 0.8em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--fa-linie);
+}
+.markdown-source-view.mod-cm6 .HyperMD-header-3 {
+  padding-top: 1.1em;
+  padding-bottom: 0.3em !important;
+  border-bottom: 1px solid var(--fa-linie);
+}
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-header-3 + .cm-line:not(.HyperMD-header):not(:has(> br:only-child)) {
+  padding-top: 0.6em;
+}
+.markdown-rendered :is(h4, h5, h6) { margin-top: 1.8em; margin-bottom: 0.4em; }
+.markdown-source-view.mod-cm6 :is(.HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) { padding-top: 1.2em; padding-bottom: 0.1em; }
 
+/* H4 to H6: captions in capitals, spaced out so the small size stays legible */
 .markdown-rendered :is(h4, h5, h6),
-.markdown-source-view.mod-cm6 :is(.cm-header-4, .cm-header-5, .cm-header-6) {
-  letter-spacing: 0.01em;
+.markdown-source-view.mod-cm6 :is(.cm-header-4, .cm-header-5, .cm-header-6):not(.cm-formatting-header) {
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 
 /* ── Entry fields ──────────────────────────────────────────────────── */
@@ -379,6 +418,7 @@ a.tag, .markdown-source-view.mod-cm6 .cm-hashtag {
 }
 .markdown-rendered td,
 .markdown-source-view.mod-cm6 .cm-table-widget td {
+  font-variant-numeric: tabular-nums;   /* amounts line up in a column */
   background: var(--fa-feld);
   box-shadow: inset 0 -1px 0 var(--fa-linie);
 }
@@ -425,7 +465,7 @@ a.tag, .markdown-source-view.mod-cm6 .cm-hashtag {
   padding: 0;
   gap: 0.45em;
   font-size: 0.9em;
-  font-weight: 400;
+  font-weight: 600;
 }
 .callout .callout-title :is(.callout-icon, .callout-icon .svg-icon) { color: var(--fa-farbe); }
 .callout .callout-title .callout-fold { color: var(--fa-kennzahl); }
@@ -441,7 +481,8 @@ a.tag, .markdown-source-view.mod-cm6 .cm-hashtag {
 .markdown-rendered sup.footnote-ref a,
 .markdown-rendered ol > li::marker {
   color: var(--fa-farbe);
-  font-weight: 400;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Properties (frontmatter): small label, value in a light field ── */
