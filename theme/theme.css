@@ -527,3 +527,20 @@
 .markdown-source-view.mod-cm6 .cm-lineNumbers .cm-active {
   color: var(--wf-leise);
 }
+
+/* ── Tabs: Obsidian's own shape, two of its glitches fixed ──
+   With "translucent window" on, Obsidian makes the tab outline rgba(0,0,0,.15). The active tab's
+   ring, its two bottom "ears" and the tab bar's rule are all drawn in it and overlap, so every
+   overlap shows as a darker segment. Mixing the same 15% black into the bar colour gives the
+   identical tone, opaque, and the joins disappear (light and dark alike).
+   On hover Obsidian adds a blurred inset shadow along the bottom that doubles the bar's rule, and
+   leaves the divider next to the hovered tab standing. */
+.is-translucent:not(.is-fullscreen) {
+  --tab-outline-color: color-mix(in srgb, black 15%, var(--tab-container-background));
+}
+.workspace-tab-header-container .workspace-tab-header:not(.is-active):hover {
+  box-shadow: none;
+}
+.workspace .mod-root .workspace-tab-header:is(:hover, :has(+ :hover)) .workspace-tab-header-inner::after {
+  opacity: 0;
+}
