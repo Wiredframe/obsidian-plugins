@@ -544,3 +544,10 @@
 .workspace .mod-root .workspace-tab-header:is(:hover, :has(+ :hover)) .workspace-tab-header-inner::after {
   opacity: 0;
 }
+
+/* ── Status bar: hide it when it has nothing to show ──
+   With most core plugins off, the bar often holds only items that are hidden (Obsidian hides them
+   with an inline display: none), yet Obsidian still draws the empty bar as a small rounded box. */
+.status-bar:not(:has(> .status-bar-item:not([style*="display: none"]))) {
+  display: none;
+}
